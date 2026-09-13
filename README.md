@@ -4,64 +4,193 @@ Synthetic-data college digital-twin prototype. M1 provides a React frontend shel
 
 The design, responsibilities and 12-week plan live in [docs/blueprint.md](docs/blueprint.md). The frontend/integration owner starts against mocked responses in **week 4**, not week 9.
 
-## Run without Docker
+## New developer setup — Windows, without Docker
 
-Requirements: Python 3.13 and Node.js 24. PostgreSQL 17 is required only for the database-backed API, migrations and integration tests. Docker setup is deferred at the user's request.
+Follow these steps in order. Run each command separately; if one fails, resolve that error before continuing. The examples use `V:\college twin` as the checkout folder. Replace that path with your own checkout location wherever it appears.
 
-From the project root in PowerShell:
+There are three parts to run:
+
+| Part | What it does | Where it runs |
+|---|---|---|
+| PostgreSQL | Stores the college data and login accounts | Windows service, normally port 5432 |
+| Backend | Handles login and reads the database | Terminal 1, port 8000 |
+| Frontend | Displays the website | Terminal 2, port 5173 |
+
+### 1. Check the required software
+
+Use **PowerShell 7.1 or newer** for these instructions; the hidden password prompt uses `Read-Host -MaskInput`. Install Python 3.13, Node.js 24, and PostgreSQL Server with its command-line tools if they are missing. PostgreSQL 17 is the original project target; the current developer machine has PostgreSQL 18 running, and the paths below use version 18. If you installed version 17, change `18` to `17` in the PostgreSQL executable paths. Docker is not needed for this guide.
+
+In **PowerShell**, check:
 
 ```powershell
+$PSVersionTable.PSVersion
+python --version
+node --version
+npm.cmd --version
+Get-Service -Name '*postgres*'
+```
+
+Your PostgreSQL service should show `Running`. If it is stopped, start the matching PostgreSQL service through Windows Services. Keep the PostgreSQL `postgres` account password you chose during installation available; you will need it below.
+
+### 2. Install project dependencies — Terminal 1
+
+In **PowerShell**, enter the project folder and create its Python environment once:
+
+```powershell
+Set-Location 'V:\college twin'
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements.lock
 npm.cmd ci --prefix frontend
 ```
 
-With an activated Python 3.13 environment, the backend also supports installing as a local package:
+If `.venv` already exists, skip creating it again. All Python commands below name its interpreter explicitly, so you do not need to activate the environment.
+
+**If you already use uv**, replace the pip installation command with this command from the project root:
 
 ```powershell
-Set-Location backend
-uv pip install .
+uv pip install --python .\.venv\Scripts\python.exe -e .\backend -c .\backend\requirements.lock
 ```
 
-Use `uv pip install -e .` for an editable development install. Dependencies come from `requirements.in`, including the M1 test tools; add `-c requirements.lock` to use the verified exact versions. Package discovery includes only `app` and its subpackages. Alembic migrations remain in the source checkout, so run migration commands from `backend` as documented below.
+Alternatively, `uv pip install .` works from `backend` with an activated environment. The editable form (`-e`) picks up code changes without reinstalling. The constraint file selects the project's locked dependency versions. Alembic migration files remain in the checkout; run migrations from `backend`.
 
-Generate and validate the full dataset without a database:
+### 3. Create the database — one time only
+
+Run this command in **PowerShell**, not inside PostgreSQL:
 
 ```powershell
-Set-Location backend
-..\.venv\Scripts\python.exe -m app.cli generate --seed 42 --weeks 16 --output ..\data\seed-42.json
+& 'C:\Program Files\PostgreSQL\18\bin\psql.exe' -h localhost -p 5432 -U postgres -d postgres
 ```
 
-The default dataset contains 240 students, 16 faculty, 12 rooms, 2,560 dated class sessions and 76,800 attendance rows. The command prints counts and a logical hash. Same seed, generator version, configuration and locked dependencies produce the same logical data. Generated JSON is ignored by Git; commit the generator and lockfiles instead.
+When prompted, enter your **PostgreSQL installation password**. Nothing appears while typing. A successful connection shows `postgres=#`.
 
-Start the frontend shell in a separate root terminal:
+You are now inside **PostgreSQL's SQL shell**. Copy only this SQL command, without a prompt prefix or a backslash before the underscore:
 
-```powershell
-npm.cmd run dev --prefix frontend
+```sql
+CREATE DATABASE college_twin;
 ```
 
-Open http://localhost:5173. Without the backend, the shell shows a connection message and login form; it does not fabricate a logged-in dashboard. UI tests use mocked responses without requiring PostgreSQL. In week 4, expand those mocks for M2 contracts before implementing state screens.
+Expected result: `CREATE DATABASE`. If it says `database "college_twin" already exists`, use that existing project database and continue; do not delete it.
 
-## Connect an existing PostgreSQL database
+Exit the SQL shell by typing:
 
-Create a dedicated database and administrative account using your existing PostgreSQL installation. Supply its SQLAlchemy connection string as `DATABASE_URL` through your local environment, never a committed file. URL-encode special characters in credentials. From `backend`:
+```text
+\q
+```
+
+You should now see a PowerShell prompt beginning with `PS`. All remaining setup commands run in PowerShell.
+
+### 4. Connect the backend to PostgreSQL — Terminal 1
+
+In **the same PowerShell terminal**, run:
 
 ```powershell
-..\.venv\Scripts\alembic.exe upgrade head
+Set-Location 'V:\college twin\backend'
+$dbPassword = Read-Host 'Your PostgreSQL installation password' -MaskInput
+$env:DATABASE_URL = "postgresql+psycopg://postgres:$([Uri]::EscapeDataString($dbPassword))@localhost:5432/college_twin"
+Remove-Variable dbPassword
+$env:APP_ORIGIN = 'http://localhost:5173'
+$env:COOKIE_SECURE = 'false'
+```
+
+This sets the backend's database connection for **this terminal only**. The password is encoded automatically, so characters such as `@`, `:` and `#` work. Do not print or share `DATABASE_URL`. Keep this terminal open through steps 5–7. If your PostgreSQL server uses another port or administrator username, change `5432` or `postgres` accordingly.
+
+### 5. Create tables and load synthetic college data — Terminal 1
+
+First create the tables inside the database:
+
+```powershell
+..\.venv\Scripts\python.exe -m alembic upgrade head
+```
+
+This must return without an error. If migrations have already been applied, it may produce no output. Next load the reproducible dataset:
+
+```powershell
 ..\.venv\Scripts\python.exe -m app.cli seed --seed 42 --weeks 16
+```
+
+Expected result: `Loaded new edition`, followed by counts including **240 students, 16 faculty, 12 rooms, 2,560 classes and 76,800 attendance records**. On a repeat run, `Edition already loaded; unchanged` is normal. Do not recreate the database to rerun this step.
+
+### 6. Create your website login — Terminal 1
+
+```powershell
 ..\.venv\Scripts\python.exe -m app.cli create-user planner --role planner
+```
+
+Choose and remember a **new password of at least 16 characters**. It is hidden while you type. This is the website password, separate from the PostgreSQL installation password. The command returns to PowerShell after creating the account. Repeating it does not reset an existing account's password.
+
+| Login | Username | Password |
+|---|---|---|
+| PostgreSQL connection | `postgres` | Password chosen during PostgreSQL installation |
+| College Twin website | `planner` | Password chosen in this step |
+
+Optional: create a read-only website account with:
+
+```powershell
 ..\.venv\Scripts\python.exe -m app.cli create-user viewer --role viewer
 ```
 
-The account commands securely prompt for a password of at least 16 characters. They do not overwrite existing users. For the frontend dev server, set `APP_ORIGIN` to `http://localhost:5173` before starting the API:
+### 7. Start the backend — Terminal 1
 
 ```powershell
-..\.venv\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
+..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
-The frontend proxies `/api` to port 8000. Cookies remain same-origin. Session tokens and CSRF tokens are hashed in the database; logout requires origin and CSRF validation. The API includes `/api/v1/health`, `/auth/login`, `/auth/me`, `/auth/logout`, `/datasets`, and `/rooms`; interactive documentation is at http://127.0.0.1:8000/api/docs.
+Expected output includes `Uvicorn running on http://127.0.0.1:8000`. **Leave this terminal running.** Open [backend health](http://127.0.0.1:8000/api/v1/health); a working database connection returns JSON containing `"status":"ok"`. API documentation is at [backend API docs](http://127.0.0.1:8000/api/docs).
 
-Use a restricted runtime database role for shared demos. `python -m app.cli bootstrap` creates local planner/viewer accounts, provisions the fixed `twin_app` role, and seeds the default edition. It requires admin `DATABASE_URL` and separate `PLANNER_PASSWORD`, `VIEWER_PASSWORD`, `API_DB_PASSWORD` environment values. It must run only against the dedicated project database/cluster because the PostgreSQL role is cluster-scoped. Restart the API with `DATABASE_URL` using `twin_app`; it has SELECT-only domain permissions plus the auth/audit permissions it needs. Do not run the public API with an administrative database account outside personal local development.
+### 8. Start the frontend and sign in — Terminal 2
+
+Open a **second PowerShell terminal** and run:
+
+```powershell
+Set-Location 'V:\college twin'
+npm.cmd run dev --prefix frontend -- --port 5173 --strictPort
+```
+
+Leave this terminal running too. Open [College Twin](http://localhost:5173) and sign in with `planner` and the **website password from step 6**. You should see the dataset edition and room inventory. Simulation and prediction screens are later milestones.
+
+Use `localhost:5173` consistently. The frontend forwards `/api` requests to the backend on port 8000. The strict port option prevents Vite from silently choosing a different port that would no longer match `APP_ORIGIN`. If the frontend is already running at this address, reuse it rather than launching a second copy.
+
+### Starting again the next day
+
+The database, tables, synthetic data and accounts remain saved when terminals close. You do **not** repeat database creation, seeding or account creation every day.
+
+1. Confirm the PostgreSQL service is running.
+2. Open Terminal 1 and repeat **step 4** to set its connection variables, then **step 7** to start the backend.
+3. Open Terminal 2 and repeat **step 8** to start the frontend.
+4. After pulling code changes, run `alembic upgrade head` as in step 5 before starting the backend. Reinstall dependencies only when the dependency files change.
+
+Press `Ctrl+C` in each terminal to stop its development server. Closing Terminal 1 clears its connection environment variables; PostgreSQL keeps the data.
+
+### Common setup problems
+
+| What you see | What to do |
+|---|---|
+| `syntax error at or near "&"` or a prompt ending in `-#` | A PowerShell command was pasted into the SQL shell, or SQL input is unfinished. Press `Ctrl+C` to clear the pending input. At `postgres=#`, run only the SQL in step 3; use `\q` before running PowerShell commands. |
+| `database "college_twin" already exists` | Continue to step 4. Do not drop the database. |
+| `password authentication failed for user "postgres"` | Repeat step 4 with the PostgreSQL installation password, not the website password. |
+| `connection refused` on port 5432 | Check that the intended PostgreSQL service is running and that its configured port matches step 4. |
+| `database_url` is missing | Repeat step 4 in the exact terminal used to run the backend or migration command. |
+| `No module named ...` | Use the explicit `.venv` interpreter shown above and finish dependency installation in step 2. |
+| `relation ... does not exist` | Run `alembic upgrade head` from `backend`, using the same database connection as the API. |
+| `Origin not allowed` | Set `APP_ORIGIN` to `http://localhost:5173` in Terminal 1, restart the backend, and open that exact frontend address. |
+| `Invalid username or password` on the website | Use `planner` and the password from step 6. Rerunning `create-user` does not change an existing password. |
+| `Too many login attempts` | Wait one minute, then retry with the website credentials. |
+| Frontend cannot reach the server | Keep Terminal 1 running and check the backend health link in step 7. |
+| Port 8000 or 5173 is already in use | Reuse the existing project server or stop your previous copy with `Ctrl+C`; do not start duplicate servers. |
+
+## Optional: generate data without a database
+
+From `backend` in PowerShell:
+
+```powershell
+..\.venv\Scripts\python.exe -m app.cli generate --seed 42 --weeks 16 --output ..\data\seed-42.json
+```
+
+This validates and exports JSON; it does not load PostgreSQL. Same seed, generator version, configuration and locked dependencies produce the same logical data. Generated JSON is ignored by Git; commit the generator and lockfiles instead.
+
+## Database permissions for shared demos
+
+The walkthrough above uses `postgres` for personal local development. For shared demos, use a restricted runtime database role. `python -m app.cli bootstrap` creates local planner/viewer accounts, provisions the fixed `twin_app` role, and seeds the default edition. It requires admin `DATABASE_URL` and separate `PLANNER_PASSWORD`, `VIEWER_PASSWORD`, `API_DB_PASSWORD` environment values. It must run only against the dedicated project database/cluster because the PostgreSQL role is cluster-scoped. Restart the API with `DATABASE_URL` using `twin_app`; it has SELECT-only domain permissions plus the auth/audit permissions it needs. Do not run the public API with an administrative database account outside personal local development.
 
 ## Verification
 
