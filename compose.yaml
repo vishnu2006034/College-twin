@@ -1,0 +1,60 @@
+name: college-twin
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: college_twin
+      POSTGRES_USER: twin_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run the environment setup first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U twin_admin -d college_twin"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  init:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://twin_admin:${POSTGRES_PASSWORD}@db:5432/college_twin
+      API_DB_PASSWORD: ${API_DB_PASSWORD:?Run the environment setup first}
+      PLANNER_PASSWORD: ${PLANNER_PASSWORD:?Set a planner password}
+      VIEWER_PASSWORD: ${VIEWER_PASSWORD:?Set a viewer password}
+    command: [sh, -c, "alembic upgrade head && python -m app.cli bootstrap"]
+    depends_on:
+      db: {condition: service_healthy}
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://twin_app:${API_DB_PASSWORD}@db:5432/college_twin
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      init: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:8080:80"]
+    depends_on:
+      backend: {condition: service_healthy}
+  test-db:
+    profiles: [test]
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: college_twin_test
+      POSTGRES_USER: twin_test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # Disposable test database, deliberately separate from demo data.
+    tmpfs: [/var/lib/postgresql/data]
+    ports: ["127.0.0.1:55432:5432"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U twin_test -d college_twin_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  postgres_data:

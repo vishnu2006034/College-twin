@@ -1,0 +1,11 @@
+fastapi>=0.115,<1
+uvicorn>=0.34,<1
+SQLAlchemy>=2.0,<2.1
+alembic>=1.14,<2
+psycopg[binary]>=3.2,<4
+pydantic-settings>=2.7,<3
+argon2-cffi>=23.1,<26
+Faker>=33,<40
+pytest>=8,<10
+httpx>=0.28,<1
+ruff>=0.9,<1

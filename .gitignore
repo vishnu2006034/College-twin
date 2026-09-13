@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/
+dist/
+coverage/
+test-results/
+data/
+*.log
+.tmp/
+*.tsbuildinfo
+pytest-cache-files-*/
