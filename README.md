@@ -16,6 +16,15 @@ python -m venv .venv
 npm.cmd ci --prefix frontend
 ```
 
+With an activated Python 3.13 environment, the backend also supports installing as a local package:
+
+```powershell
+Set-Location backend
+uv pip install .
+```
+
+Use `uv pip install -e .` for an editable development install. Dependencies come from `requirements.in`, including the M1 test tools; add `-c requirements.lock` to use the verified exact versions. Package discovery includes only `app` and its subpackages. Alembic migrations remain in the source checkout, so run migration commands from `backend` as documented below.
+
 Generate and validate the full dataset without a database:
 
 ```powershell

@@ -13,3 +13,5 @@ data/
 .tmp/
 *.tsbuildinfo
 pytest-cache-files-*/
+build/
+*.egg-info/
