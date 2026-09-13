@@ -2,6 +2,8 @@
 
 Synthetic-data college digital-twin prototype. M1 provides a React frontend shell, FastAPI authentication and reference-data reads, a PostgreSQL schema/migration, and a reproducible relational generator. State metrics, anomalies, simulations and ML are later milestones, not implemented features.
 
+The authenticated workspace now includes an interactive 3D Jeppiaar campus model with IT/ECE floor and room exploration. Geometry is approximate; room assignments follow user-confirmed details. Physical spaces remain separate from synthetic records until explicitly mapped. See [campus model guide](docs/campus-model.md) for the layout, configuration, limitations, and verification instructions.
+
 The design, responsibilities and 12-week plan live in [docs/blueprint.md](docs/blueprint.md). The frontend/integration owner starts against mocked responses in **week 4**, not week 9.
 
 ## New developer setup — Windows, without Docker
@@ -151,6 +153,10 @@ Leave this terminal running too. Open [College Twin](http://localhost:5173) and 
 Use `localhost:5173` consistently. The frontend forwards `/api` requests to the backend on port 8000. The strict port option prevents Vite from silently choosing a different port that would no longer match `APP_ORIGIN`. If the frontend is already running at this address, reuse it rather than launching a second copy.
 
 ### Starting again the next day
+
+For a previously configured local database, save your connection once in `backend/local-settings.json` (copy `backend/local-settings.example.json` if absent). Enter the PostgreSQL installation password in `database.password`; host, port, database and username are already supplied. Password special characters are URL-encoded automatically. This private file is ignored by Git. It also supplies the local frontend origin, so terminal environment variables are unnecessary. Explicit environment variables still override local defaults for deployments and tests.
+
+Stop the previous backend, then run `& 'V:\college twin\scripts\start_backend.ps1'`. The script validates configuration and explicitly loads this checkout's backend source. It does not create or reset the database or website account. Keep that terminal open and start the frontend in another terminal. When using this saved-file method, skip the environment-variable setup in step 4; migrations and CLI commands run from `backend` read the same file.
 
 The database, tables, synthetic data and accounts remain saved when terminals close. You do **not** repeat database creation, seeding or account creation every day.
 

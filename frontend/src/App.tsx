@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api, ApiError, type Actor, type Edition, type Page, type Room } from './api'
+import CampusExplorer from './CampusExplorer'
 
 export default function App() {
   const [actor, setActor] = useState<Actor | null>(null)
@@ -10,6 +11,7 @@ export default function App() {
   const [selected, setSelected] = useState('')
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(false)
+  const [roomsEdition, setRoomsEdition] = useState('')
 
   useEffect(() => {
     api<Actor>('/auth/me').then(setActor).catch(e => {
@@ -29,10 +31,23 @@ export default function App() {
 
   useEffect(() => {
     setRooms([])
+    setRoomsEdition('')
     if (!selected || !actor) return
     let active = true
-    api<Page<Room>>(`/rooms?edition_id=${selected}`).then(data => {
-      if (active) setRooms(data.items)
+    async function loadRooms() {
+      const all: Room[] = []
+      let offset = 0
+      while (true) {
+        const page = await api<Page<Room>>(`/rooms?edition_id=${selected}&offset=${offset}&limit=100`)
+        if (!active) return
+        all.push(...page.items)
+        offset += page.items.length
+        if (offset >= page.total || page.items.length === 0) break
+      }
+      return all
+    }
+    loadRooms().then(data => {
+      if (active && data) { setRooms(data); setRoomsEdition(selected) }
     }).catch(e => { if (active) setError(e.message) })
     return () => { active = false }
   }, [selected, actor])
@@ -58,16 +73,16 @@ export default function App() {
   return <main>
     <header><a className="brand" href="/">CT<span>College Twin</span></a><span className="badge">SYNTHETIC DATA PROTOTYPE</span>
       {actor && <button className="quiet" disabled={busy} onClick={logout}>Sign out</button>}</header>
-    <section className="intro"><p className="eyebrow">OPERATIONS LAB / M1 FOUNDATION</p>
+    {!actor && <section className="intro"><p className="eyebrow">OPERATIONS LAB / M1 FOUNDATION</p>
       <h1>A shared foundation.<br/><span>A college you can explore.</span></h1>
-      <p>Reproducible college data, ready for state analysis and simulation.</p></section>
+      <p>Reproducible college data, ready for state analysis and simulation.</p></section>}
     {error && <div role="alert" className="error">{error}</div>}
     {checking ? <p role="status">Checking your session…</p> : !actor ?
       <form className="panel login" onSubmit={login}><h2>Enter the workspace</h2><p>Use your locally configured planner or viewer account.</p>
         <label>Username<input name="username" autoComplete="username" required maxLength={80}/></label>
         <label>Password<input name="password" type="password" autoComplete="current-password" required maxLength={256}/></label>
         <button disabled={busy}>{busy ? 'Signing in…' : 'Sign in →'}</button></form> :
-      <div className="workspace"><section className="panel">
+      <><CampusExplorer editionId={selected} rooms={roomsEdition === selected ? rooms : []}/><details className="dataset-details"><summary>Dataset workspace & room inventory</summary><div className="workspace"><section className="panel">
         <div className="section-title"><h2>Dataset workspace</h2><span className="badge">{actor.role}</span></div>
         {loading ? <p role="status">Loading editions…</p> : editions.length === 0 ?
           <p>No frozen datasets are available. Run the documented bootstrap command to create one.</p> : <>
@@ -85,7 +100,7 @@ export default function App() {
       </section><aside className="panel roadmap"><p className="eyebrow">WHAT COMES NEXT</p><h2>From records to decisions</h2>
         <ol><li><strong>State & anomalies</strong><span>Weeks 4–5 · planned</span></li><li><strong>Room-closure simulation</strong><span>Weeks 6–7 · planned</span></li>
           <li><strong>Attendance-risk prediction</strong><span>Weeks 6–8 · planned</span></li></ol>
-        <p>Frontend work begins with mocked API responses in week 4. Integration replaces the mocks as backend capabilities become ready.</p></aside></div>}
+        <p>Frontend work begins with mocked API responses in week 4. Integration replaces the mocks as backend capabilities become ready.</p></aside></div></details></>}
     <footer>College Twin · Synthetic-data digital-twin prototype · No live campus connection</footer>
   </main>
 }

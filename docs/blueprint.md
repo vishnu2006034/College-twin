@@ -1,6 +1,6 @@
 # AI-Powered College Digital Twin — Technical Blueprint
 
-Status: M1 foundation implemented; local checks recorded below. PostgreSQL integration and Docker verification pending; Docker setup deferred by user. Updated 2026-09-13.
+Status: M1 foundation implemented and local app working according to user confirmation. Automated PostgreSQL integration verification remains pending; Docker setup deferred by user. Next milestone: M2 state and anomalies. Updated 2026-09-13.
 
 This is the living source of truth requested by the master prompt. M1 implementation was explicitly requested on 2026-09-13. M1 covers foundation and clean synthetic data only; later milestone contracts remain proposed. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
 
@@ -25,6 +25,24 @@ Build a synthetic-data college operations digital-twin prototype that reconstruc
 | Stretch | Live synchronization, multi-scenario comparison, resource forecasting | Future-work discussion only |
 
 ### Requirements and delivery order
+
+#### Current progress tracker
+
+Update this tracker after each milestone's implementation and verification. These are development milestones within the MVP; the optional Phase 2 copilot is not underway. Suggested weeks below are planning estimates, not elapsed time or a claim of progress percentage.
+
+| Milestone | Current status | Remaining work / next action |
+|---|---|---|
+| M0 Design | Completed for the agreed MVP scope | Refine later feature contracts before their implementation |
+| M1 Foundation | Implemented; local app working, user-confirmed | Run the eight pending PostgreSQL integration tests against a separate test database; Docker verification remains deferred |
+| M2 State and anomalies | Next; not started | Dated snapshots, attendance/room/workload metrics, conflict rules, dashboard and tests |
+| M3 Room-closure simulation | Not started | Depends on M2's verified state and conflict rules |
+| M4 Attendance-risk prediction | Not started | Depends on verified data and temporal feature contracts; can overlap M3 |
+| M5 Integration | Not started as a milestone | Full scenario/prediction flows; frontend work begins during M2 |
+| M6 Evaluation and defense | Not started | Evaluation evidence, report and viva preparation |
+
+**Latest evidence:** The user confirms the local website is now working after PostgreSQL setup and login-origin troubleshooting. This is a manual smoke-check report, not evidence that the automated PostgreSQL suite passed. Previously executed checks: 18 backend tests passed, 3 frontend tests passed, production frontend build passed. Eight database integration tests remain pending.
+
+**Next delivery:** Close M1's database verification gap without requiring Docker, using a separate PostgreSQL test database. Then implement M2 in this order: finalize snapshot request/response examples; build dated state calculations and conflict detection; build the dashboard against mock responses in parallel with backend work; connect the real endpoints and verify hand-calculated fixtures. M2 is complete when a user can select a synthetic date, inspect correctly labelled state metrics, and see verified room/faculty/section conflicts, capacity violations and room-type mismatches. M2 implementation has not been requested yet.
 
 | Milestone | Suggested weeks | Dependency / work | Exit gate |
 |---|---|---|---|
