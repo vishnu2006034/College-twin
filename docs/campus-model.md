@@ -17,6 +17,27 @@ The user identified the screenshot's EEE Block-3 as the IT/ECE building and conf
 
 Viewed from the central garden, rooms increase left to right, starting at the girls' restroom end. Each enclosed level has the girls' restroom in the left corner and the boys' restroom in the right corner, with stairs immediately inward from each. One corridor faces the garden, with rooms behind it. Terrace access structures are illustrative.
 
+### CSE extension
+
+The user confirmed CSE is immediately to the right of IT, viewed from the central garden, with the same arrangement except reversed restrooms. CSE now has the same three enclosed levels and terrace, two provisional ground-floor labs, and F1–F7 / S1–S7 on its upper floors (room 3 staff, room 4 HOD). Boys' restrooms are at the left ends and girls' at the right; stairs stay inward from each. Numbering remains left to right because only the restrooms were changed. Both upper floors are labeled CSE.
+
+Each space now carries `buildingId`. CSE's spaces have separate `cse-` IDs; existing IT/ECE IDs and bindings remain unchanged. Floor controls, scene cutaways, search results, and inspectors use the selected building. Search results include the building so duplicate room labels such as F3 remain distinguishable. CSE data bindings remain empty until verified.
+
+### Latest department corrections
+
+These assignments supersede the initial CSE floor allocation above:
+
+| Building | Ground | First | Second |
+| --- | --- | --- | --- |
+| CSE, right of IT | CSE second-year classrooms | CSE third-year classrooms | MCA |
+| Lab building, opposite CSE | Mechanical labs | CSE and MCA labs | IT and AI & DS labs |
+
+CSE's ground-floor partitions use five classrooms, a staff room and HOD room from the existing upper-floor template; G1–G7 and these placements are provisional. Its prior ground-floor lab spaces are replaced, and upper-floor IDs remain stable.
+
+The ECE building is opposite IT. Its boys' restroom is on the left and girls' on the right when viewed from the garden, opposite to IT. ECE's remaining room details use an explicitly provisional template. The earlier user-confirmed ECE occupancy on IT's second floor remains intact; a separate ECE building does not establish that those rooms moved.
+
+ECE and the lab building rotate by 180 degrees so their corridors and selection cameras face the central garden. Left/right is building-local as viewed from that garden, not a fixed world axis. The lab building uses two illustrative lab zones per floor to represent the named departments; exact counts, partitions, facilities and department ordering are provisional. Lab geometry is separate from academic classroom layouts. Existing schematic building IDs `north-west` and `mechanical` are retained for these identified buildings.
+
 ## Editing and extension
 
 - `frontend/src/campus.ts` owns stable building/space IDs, floor labels, room functions, reference confidence, positions, dimensions, colors, and explicit optional dataset bindings. Keep IDs unchanged when correcting display labels.

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Html, OrbitControls } from '@react-three/drei'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import { buildings, geometry, IT_BUILDING, spaces, spaceColors, type Vec3, type Space } from './campus'
+import { buildings, geometry, spaces, spaceColors, type Vec3, type Space } from './campus'
 
 export type SceneProps = { buildingId: string | null; floor: number | null; spaceId: string | null; reset: number; onBuilding: (id: string) => void; onSpace: (id: string) => void; onFailure: () => void }
 function Box({ at, size, color, onClick }: { at: Vec3; size: Vec3; color: string; onClick?: (e: ThreeEvent<MouseEvent>) => void }) {
@@ -16,7 +16,7 @@ function CameraRig({ buildingId, floor, reset }: Pick<SceneProps, 'buildingId' |
     const [x, , z] = building?.position ?? [0, 0, 15]
     const y = floor === null ? 4 : floor * geometry.floorHeight
     const framing = Math.max(1, 1.55 / (size.width / size.height))
-    camera.position.set(x + (building ? 0 : 235) * framing, (building ? 54 : 280) * framing, z + (building ? 65 : 300) * framing)
+    camera.position.set(x + (building ? 0 : 235) * framing, (building ? 54 : 280) * framing, z + (building ? 65 * Math.cos(building.rotation ?? 0) : 300) * framing)
     controls.current?.target.set(x, y, z)
     controls.current?.update()
     invalidate()
@@ -36,7 +36,7 @@ function RoomShape({ room, active, onSelect }: { room: Space; active: boolean; o
     <Html position={[0, 2.9, room.kind === 'restroom' ? -2 : room.kind === 'stairs' ? 2 : 0]} center zIndexRange={[20, 0]}><button aria-label={room.label} title={room.label} className={`space-tag ${active ? 'active' : ''}`} onClick={e => { e.stopPropagation(); onSelect() }}>{room.kind === 'restroom' ? room.label.replace(' restroom', ' WC') : room.kind === 'stairs' ? room.label.replace(' stairs', ' ↑') : room.label}</button></Html>
   </group>
 }
-function DetailedBuilding({ floor, spaceId, onSpace }: Pick<SceneProps, 'floor' | 'spaceId' | 'onSpace'>) {
+function DetailedBuilding({ buildingId, floor, spaceId, onSpace }: Pick<SceneProps, 'buildingId' | 'floor' | 'spaceId' | 'onSpace'>) {
   const top = floor ?? 3
   const { width: w, depth: d, floorHeight: h, corridorDepth: c, roomDepth: rd } = geometry
   const stairsX = w / 2 - geometry.facilityWidth * 1.5
@@ -44,7 +44,7 @@ function DetailedBuilding({ floor, spaceId, onSpace }: Pick<SceneProps, 'floor' 
     {[0, 1, 2].filter(level => level <= top).map(level => <group key={level}>
       <Box at={[0, level * h + .12, 0]} size={[w, .24, d]} color="#e6e1d2"/>
       <Box at={[0, level * h + .3, d / 2 - c / 2]} size={[w, .15, c]} color="#d5c7aa"/>
-      {floor === level ? spaces.filter(s => s.floor === level).map(room => <RoomShape key={room.id} room={room} active={spaceId === room.id} onSelect={() => onSpace(room.id)}/>) : <>
+      {floor === level ? spaces.filter(s => s.buildingId === buildingId && s.floor === level).map(room => <RoomShape key={room.id} room={room} active={spaceId === room.id} onSelect={() => onSpace(room.id)}/>) : <>
         <Box at={[0, level * h + h / 2, -c / 2]} size={[w, h - .4, rd + .7]} color="#e6dfce"/>
         {Array.from({ length: 22 }, (_, i) => <group key={i}>
           <Box at={[-w / 2 + 2 + i * (w - 4) / 21, level * h + h / 2, (rd + .7 - c) / 2 + .05]} size={[1.9, 1.6, .15]} color="#607d7b"/>
@@ -95,8 +95,8 @@ export default function CampusScene(props: SceneProps) {
   return <Canvas shadows="percentage" dpr={[1, 1.5]} frameloop="demand" camera={{ position: [210, 245, 285], fov: 43, near: .5, far: 1500 }} fallback={<p>3D is unavailable. Use the campus directory to explore every space.</p>} onCreated={({ gl }) => { gl.domElement.addEventListener('webglcontextlost', props.onFailure, { once: true }) }}>
     <color attach="background" args={['#e7ebdf']}/><ambientLight intensity={1.5}/><directionalLight position={[80, 180, 90]} intensity={2.5} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-230} shadow-camera-right={230} shadow-camera-top={230} shadow-camera-bottom={-230} shadow-camera-far={500} shadow-bias={-.001}/>
     <Landscape/>
-    {buildings.map(building => <group key={building.id} position={building.position} onClick={e => { e.stopPropagation(); props.onBuilding(building.id) }}>
-      {building.id === IT_BUILDING && props.buildingId === IT_BUILDING ? <DetailedBuilding {...props}/> : <>
+    {buildings.map(building => <group key={building.id} position={building.position} rotation={[0, building.rotation ?? 0, 0]} onClick={e => { e.stopPropagation(); props.onBuilding(building.id) }}>
+      {building.detailed && props.buildingId === building.id ? <DetailedBuilding {...props}/> : <>
         <Box at={[0, building.size[1] / 2, 0]} size={building.size} color={props.buildingId === building.id ? '#d4ad69' : building.detailed ? '#a9bca3' : '#ddd9c9'}/>
         <Box at={[0, building.size[1] + .15, 0]} size={[building.size[0] + .5, .3, building.size[2] + .5]} color="#b5b4a5"/>
         {[0, 1, 2].map(level => <Box key={level} at={[0, 2 + level * 4, building.size[2] / 2 + .05]} size={[building.size[0] - 2, 1.3, .12]} color="#6f8480"/>)}
