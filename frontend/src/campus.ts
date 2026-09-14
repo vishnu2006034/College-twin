@@ -9,6 +9,8 @@ export const IT_BUILDING = 'academic-it-ece'
 export const CSE_BUILDING = 'cse'
 export const ECE_BUILDING = 'north-west'
 export const LAB_BUILDING = 'mechanical'
+export const MBA_BUILDING = 'north-west-outer'
+export const AIDS_BUILDING = 'north-east'
 export const geometry = { width: 84, depth: 15, floorHeight: 4, corridorDepth: 3.5, roomDepth: 10, wall: .22, facilityWidth: 6 }
 // +X runs left to right when looking from the garden (+Z). CSE reverses restrooms only.
 export const buildings: Building[] = [
@@ -17,9 +19,9 @@ export const buildings: Building[] = [
   { id: CSE_BUILDING, label: 'CSE · Block 5', position: [46, 0, -57], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], detailed: true, confidence: 'reference-derived' },
   { id: 'south-east', label: 'Academic block A', position: [46, 0, -79], size: [84, 12, 15], confidence: 'provisional' },
   { id: ECE_BUILDING, label: 'ECE building', position: [-46, 0, 55], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
-  { id: 'north-west-outer', label: 'Academic block C', position: [-46, 0, 78], size: [84, 12, 15], confidence: 'provisional' },
+  { id: MBA_BUILDING, label: 'MBA / Lab building', position: [-46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: LAB_BUILDING, label: 'Lab building · Block 6', position: [46, 0, 55], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
-  { id: 'north-east', label: 'Academic block D', position: [46, 0, 78], size: [84, 12, 15], confidence: 'provisional' },
+  { id: AIDS_BUILDING, label: 'AI & DS / Mechanical lab building', position: [46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: 'hall', label: 'Large hall · unconfirmed', position: [117, 0, 15], size: [35, 10, 65], confidence: 'provisional' },
   { id: 'east-wing', label: 'East wing · unconfirmed', position: [-105, 0, -8], size: [13, 12, 74], confidence: 'provisional' },
   { id: 'courtyard-north', label: 'Courtyard complex · north', position: [-46, 0, 114], size: [84, 12, 14], confidence: 'provisional' },
@@ -33,6 +35,8 @@ export function floorsFor(buildingId: string) {
     [CSE_BUILDING]: ['Ground · CSE 2nd year', 'First · CSE 3rd year', 'Second · MCA', 'Terrace'],
     [ECE_BUILDING]: ['Ground · ECE', 'First · ECE', 'Second · ECE', 'Terrace'],
     [LAB_BUILDING]: ['Ground · Mechanical labs', 'First · CSE / MCA labs', 'Second · IT / AI & DS labs', 'Terrace'],
+    [MBA_BUILDING]: ['Ground · MBA', 'First · Labs', 'Second · Unconfirmed', 'Terrace'],
+    [AIDS_BUILDING]: ['Ground · Labs', 'First · Mechanical labs', 'Second · AI & DS', 'Terrace'],
   }
   return labels[buildingId]?.map((label, level) => ({ level, label })) ?? floors
 }
@@ -73,7 +77,26 @@ const labSpaces: Space[] = [0, 1, 2].flatMap(floor => itSpaces.filter(s => s.flo
     department, label: s.kind === 'lab' ? `${department} lab${floor === 0 ? ` ${index + 1}` : ''}` : s.label,
     provisional: true }
 }))
-export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces]
+const mbaSpaces: Space[] = eceSpaces.filter(s => s.kind === 'restroom' || s.kind === 'stairs').map(s => ({
+  ...s, id: s.id.replace('ece-', 'mba-'), buildingId: MBA_BUILDING,
+  department: s.floor === 0 ? 'MBA' : undefined, provisional: true,
+}))
+mbaSpaces.push(...itSpaces.filter(s => s.floor === 1 && ['classroom', 'staff', 'hod'].includes(s.kind)).map(s => ({
+  ...s, id: s.id.replace('it-ece-l1-', 'mba-l0-'), buildingId: MBA_BUILDING, floor: 0,
+  label: s.label.replace('F', 'G'), department: 'MBA', provisional: true,
+})))
+mbaSpaces.push(...itSpaces.filter(s => s.floor === 0 && s.kind === 'lab').map(s => ({
+  ...s, id: s.id.replace('it-ece-l0-', 'mba-l1-'), buildingId: MBA_BUILDING, floor: 1, provisional: true,
+})))
+// No room functions are invented for the unconfirmed second floor.
+const aidsSpaces: Space[] = labSpaces.map(s => {
+  const department = s.floor === 1 ? 'Mechanical' : s.floor === 2 ? 'AI & DS' : undefined
+  const number = s.x < 0 ? 1 : 2
+  return { ...s, id: s.id.replace('labs-', 'aids-'), buildingId: AIDS_BUILDING, department,
+    label: s.kind === 'lab' ? `${department ? `${department} ` : ''}Lab ${number}` : s.label,
+    provisional: true }
+})
+export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces, ...mbaSpaces, ...aidsSpaces]
 export const bindings: RoomBinding[] = []
 export function linkedRoom(spaceId: string, editionId: string, rooms: Room[], links = bindings) {
   const binding = links.find(item => item.spaceId === spaceId && item.editionId === editionId)

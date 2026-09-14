@@ -1,5 +1,13 @@
 # Jeppiaar campus spatial model
 
+### Building behind the lab block
+
+The building immediately behind the main lab building is identified as the AI & DS / Mechanical lab building. Ground-floor use is labs with department unspecified; first-floor use is Mechanical labs; second-floor occupancy is AI & DS. It uses the same footprint, three levels, terrace, orientation and provisional facilities as the main lab block. Two lab zones per floor are illustrative; the second-floor room types and partitions remain provisional because only AI & DS occupancy was confirmed. The existing building ID `north-east` is retained; its spaces have independent `aids-` IDs.
+
+### MBA building behind ECE
+
+The building immediately behind ECE is now identified as the MBA / Lab building. It shares ECE's footprint, height and garden-facing orientation. Ground-floor use is MBA, first-floor use is labs, and second-floor use is explicitly unconfirmed. Ground-floor classroom/office partitions and G labels, two first-floor lab zones, restrooms and stairs are provisional copies of the existing structure. The second floor contains only provisional access/facility geometry; no classroom, lab or department assignment is invented. Its existing building ID `north-west-outer` is retained and spaces use independent `mba-` IDs.
+
 ## Architectural rendering update
 
 The viewer now includes individual framed windows, sunshades, columns, corridor rails, entrance steps, parapets, stair-access structures and illustrative roof equipment. Rooms include illustrative desks, boards, office furniture, computer workstations or Mechanical-lab equipment. These visual assets do not establish actual furniture counts or building equipment inventories.

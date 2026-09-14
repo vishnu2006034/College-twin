@@ -1,8 +1,47 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import CampusExplorer from './CampusExplorer'
-import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, floorsFor } from './campus'
+import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, MBA_BUILDING, AIDS_BUILDING, floorsFor } from './campus'
 
 afterEach(cleanup)
+test('rear lab building preserves structure and has the confirmed floor allocation', () => {
+  const rear = buildings.find(b => b.id === AIDS_BUILDING)!
+  const front = buildings.find(b => b.id === LAB_BUILDING)!
+  expect(rear.position[0]).toBe(front.position[0])
+  expect(rear.position[2]).toBeGreaterThan(front.position[2])
+  expect(rear.size).toEqual(front.size)
+  expect(rear.rotation).toBe(front.rotation)
+  const rooms = spaces.filter(s => s.buildingId === AIDS_BUILDING)
+  for (const floor of [0, 1, 2]) {
+    const labs = rooms.filter(s => s.floor === floor && s.kind === 'lab')
+    expect(labs).toHaveLength(2)
+    expect(labs.every(s => s.department === [undefined, 'Mechanical', 'AI & DS'][floor])).toBe(true)
+  }
+  render(<CampusExplorer editionId="a" rooms={[]}/>)
+  fireEvent.click(screen.getByRole('button', { name: /AI & DS \/ Mechanical lab building 3 floors/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Second · AI & DS' }))
+  fireEvent.click(screen.getByRole('button', { name: 'AI & DS Lab 1 Lab' }))
+  const panel = within(screen.getByRole('complementary', { name: 'Selected space information' }))
+  expect(panel.getByText('AI & DS / Mechanical lab building')).toBeVisible()
+  expect(panel.getByText('AI & DS', { exact: true })).toBeVisible()
+  expect(panel.getByText('Provisional')).toBeVisible()
+})
+test('MBA building sits behind ECE and leaves second-floor room uses unconfirmed', () => {
+  const mba = buildings.find(b => b.id === MBA_BUILDING)!
+  const ece = buildings.find(b => b.id === ECE_BUILDING)!
+  expect(mba.position[0]).toBe(ece.position[0])
+  expect(mba.position[2]).toBeGreaterThan(ece.position[2])
+  expect(mba.rotation).toBe(ece.rotation)
+  expect(mba.size).toEqual(ece.size)
+  const rooms = spaces.filter(s => s.buildingId === MBA_BUILDING)
+  expect(rooms.filter(s => s.floor === 0).every(s => s.department === 'MBA')).toBe(true)
+  expect(rooms.filter(s => s.floor === 1 && s.kind === 'lab')).toHaveLength(2)
+  expect(rooms.filter(s => s.floor === 2).every(s => ['stairs', 'restroom'].includes(s.kind) && !s.department)).toBe(true)
+  render(<CampusExplorer editionId="a" rooms={[]}/>)
+  fireEvent.click(screen.getByRole('button', { name: /MBA \/ Lab building 3 floors/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Second · Unconfirmed' }))
+  expect(screen.getByRole('status')).toHaveTextContent('Second-floor use and rooms are unconfirmed')
+  expect(screen.queryByRole('button', { name: 'S1 Classroom' })).not.toBeInTheDocument()
+})
 test('view and label controls preserve selected room and reset restores perspective', () => {
   render(<CampusExplorer editionId="a" rooms={[]}/>)
   fireEvent.click(screen.getByRole('button', { name: 'Explore IT floor →' }))
