@@ -18,9 +18,9 @@ function CameraRig({ buildingId, floor, reset, view }: Pick<SceneProps, 'buildin
     const [x, , z] = building?.position ?? [0, 0, 15]
     const y = floor === null ? 4 : floor * geometry.floorHeight
     const framing = Math.max(1, 1.55 / (size.width / size.height))
-    camera.position.set(x + (building ? 0 : 235) * framing, (building ? 54 : 280) * framing, z + (building ? 65 * Math.cos(building.rotation ?? 0) : 300) * framing)
+    camera.position.set(x + (building ? 65 * Math.sin(building.rotation ?? 0) : 235) * framing, (building ? 54 : 280) * framing, z + (building ? 65 * Math.cos(building.rotation ?? 0) : 300) * framing)
     if (view === 'plan') camera.position.set(x, (building ? 85 : 460) * framing, z + (building?.rotation ? -.01 : .01))
-    if (view === 'ground') camera.position.set(x + (building ? 20 : 100), y + (building ? 10 : 32), z + (building ? 65 * Math.cos(building.rotation ?? 0) : 145) * framing)
+    if (view === 'ground') camera.position.set(x + (building ? 20 + 65 * Math.sin(building.rotation ?? 0) : 100), y + (building ? 10 : 32), z + (building ? 65 * Math.cos(building.rotation ?? 0) : 145) * framing)
     controls.current?.target.set(x, y, z)
     controls.current?.update()
     invalidate()
@@ -45,8 +45,8 @@ function DetailedBuilding({ buildingId, floor, spaceId, onSpace, labels }: Pick<
   const building = buildings.find(b => b.id === buildingId)!
   if (floor === null || floor === 3) return <BuildingExterior building={building} selected/>
   const { width: w, depth: d, floorHeight: h, corridorDepth: c } = geometry
-  return <group>
-    {floor > 0 && <BuildingExterior building={building} levels={floor} roof={false}/>}
+  return <group scale={[building.size[0] / w, building.size[1] / (3 * h), building.size[2] / d]}>
+    {floor > 0 && <BuildingExterior building={{ ...building, size: [w, 3 * h, d] }} levels={floor} roof={false}/>}
     <Box at={[0, floor * h + .12, 0]} size={[w, .24, d]} color="#d6c7a9"/>
     <Box at={[0, floor * h + .3, d / 2 - c / 2]} size={[w, .15, c]} color="#cbbd9d"/>
     <Box at={[0, floor * h + 1, d / 2]} size={[w, 1.1, .2]} color="#dbcfb2"/>

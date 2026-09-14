@@ -1,8 +1,25 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import CampusExplorer from './CampusExplorer'
-import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, MBA_BUILDING, AIDS_BUILDING, floorsFor } from './campus'
+import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, MBA_BUILDING, AIDS_BUILDING, FACILITIES_BUILDING, floorsFor } from './campus'
 
 afterEach(cleanup)
+test('hall is centered and opposite facilities building has bank and unconfirmed floor', () => {
+  const hall = buildings.find(b => b.id === 'hall')!
+  const facility = buildings.find(b => b.id === FACILITIES_BUILDING)!
+  expect(hall.position[2]).toBe(0)
+  expect(facility.position[2]).toBe(0)
+  expect(hall.position[0]).toBeGreaterThan(0)
+  expect(facility.position[0]).toBeLessThan(0)
+  expect(facility.rotation).toBe(Math.PI / 2)
+  render(<CampusExplorer editionId="a" rooms={[]}/>)
+  fireEvent.click(screen.getByRole('button', { name: /Facilities \/ Bank building 3 floors/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'First · Bank' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Bank Bank' }))
+  const panel = within(screen.getByRole('complementary', { name: 'Selected space information' }))
+  expect(panel.getByRole('heading', { name: 'Bank' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Second · Unconfirmed' }))
+  expect(screen.getByRole('status')).toHaveTextContent('Second-floor use and rooms are unconfirmed')
+})
 test('rear lab building preserves structure and has the confirmed floor allocation', () => {
   const rear = buildings.find(b => b.id === AIDS_BUILDING)!
   const front = buildings.find(b => b.id === LAB_BUILDING)!

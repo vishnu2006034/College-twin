@@ -1,7 +1,7 @@
 import type { Room } from './api'
 
 export type Vec3 = [number, number, number]
-export type SpaceKind = 'classroom' | 'lab' | 'staff' | 'hod' | 'restroom' | 'stairs'
+export type SpaceKind = 'classroom' | 'lab' | 'staff' | 'hod' | 'restroom' | 'stairs' | 'facility' | 'bank'
 export type Space = { id: string; buildingId: string; label: string; kind: SpaceKind; floor: number; department?: string; x: number; width: number; provisional: boolean }
 export type Building = { id: string; label: string; position: Vec3; size: Vec3; rotation?: number; detailed?: boolean; confidence: 'reference-derived' | 'provisional' }
 export type RoomBinding = { spaceId: string; editionId: string; roomId: string }
@@ -11,6 +11,7 @@ export const ECE_BUILDING = 'north-west'
 export const LAB_BUILDING = 'mechanical'
 export const MBA_BUILDING = 'north-west-outer'
 export const AIDS_BUILDING = 'north-east'
+export const FACILITIES_BUILDING = 'east-wing'
 export const geometry = { width: 84, depth: 15, floorHeight: 4, corridorDepth: 3.5, roomDepth: 10, wall: .22, facilityWidth: 6 }
 // +X runs left to right when looking from the garden (+Z). CSE reverses restrooms only.
 export const buildings: Building[] = [
@@ -22,8 +23,8 @@ export const buildings: Building[] = [
   { id: MBA_BUILDING, label: 'MBA / Lab building', position: [-46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: LAB_BUILDING, label: 'Lab building · Block 6', position: [46, 0, 55], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: AIDS_BUILDING, label: 'AI & DS / Mechanical lab building', position: [46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
-  { id: 'hall', label: 'Large hall · unconfirmed', position: [117, 0, 15], size: [35, 10, 65], confidence: 'provisional' },
-  { id: 'east-wing', label: 'East wing · unconfirmed', position: [-105, 0, -8], size: [13, 12, 74], confidence: 'provisional' },
+  { id: 'hall', label: 'Large hall', position: [117, 0, 0], size: [35, 10, 65], confidence: 'reference-derived' },
+  { id: FACILITIES_BUILDING, label: 'Facilities / Bank building', position: [-105, 0, 0], size: [74, 12, 13], rotation: Math.PI / 2, detailed: true, confidence: 'reference-derived' },
   { id: 'courtyard-north', label: 'Courtyard complex · north', position: [-46, 0, 114], size: [84, 12, 14], confidence: 'provisional' },
   { id: 'courtyard-west', label: 'Courtyard complex · west', position: [-81, 0, 144], size: [14, 12, 48], confidence: 'provisional' },
   { id: 'courtyard-east', label: 'Courtyard complex · east', position: [-11, 0, 144], size: [14, 12, 48], confidence: 'provisional' },
@@ -37,6 +38,7 @@ export function floorsFor(buildingId: string) {
     [LAB_BUILDING]: ['Ground · Mechanical labs', 'First · CSE / MCA labs', 'Second · IT / AI & DS labs', 'Terrace'],
     [MBA_BUILDING]: ['Ground · MBA', 'First · Labs', 'Second · Unconfirmed', 'Terrace'],
     [AIDS_BUILDING]: ['Ground · Labs', 'First · Mechanical labs', 'Second · AI & DS', 'Terrace'],
+    [FACILITIES_BUILDING]: ['Ground · College facilities', 'First · Bank', 'Second · Unconfirmed', 'Terrace'],
   }
   return labels[buildingId]?.map((label, level) => ({ level, label })) ?? floors
 }
@@ -96,11 +98,18 @@ const aidsSpaces: Space[] = labSpaces.map(s => {
     label: s.kind === 'lab' ? `${department ? `${department} ` : ''}Lab ${number}` : s.label,
     provisional: true }
 })
-export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces, ...mbaSpaces, ...aidsSpaces]
+const facilitySpaces: Space[] = itSpaces.filter(s => s.kind === 'stairs' || s.kind === 'restroom').map(s => ({
+  ...s, id: s.id.replace('it-ece-', 'facilities-'), buildingId: FACILITIES_BUILDING, department: undefined, provisional: true,
+}))
+facilitySpaces.push(
+  { id: 'facilities-l0-service-area', buildingId: FACILITIES_BUILDING, label: 'College facilities / visiting services', kind: 'facility', floor: 0, x: 0, width: 60, provisional: true },
+  { id: 'facilities-l1-bank', buildingId: FACILITIES_BUILDING, label: 'Bank', kind: 'bank', floor: 1, x: 0, width: 60, provisional: true },
+)
+export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces, ...mbaSpaces, ...aidsSpaces, ...facilitySpaces]
 export const bindings: RoomBinding[] = []
 export function linkedRoom(spaceId: string, editionId: string, rooms: Room[], links = bindings) {
   const binding = links.find(item => item.spaceId === spaceId && item.editionId === editionId)
   return binding ? rooms.find(room => room.id === binding.roomId) : undefined
 }
-export const kindLabels: Record<SpaceKind, string> = { classroom: 'Classroom', lab: 'Lab', staff: 'Staff room', hod: 'HOD room', restroom: 'Restroom', stairs: 'Stairs' }
-export const spaceColors: Record<SpaceKind, string> = { classroom: '#bbd8cf', lab: '#afc9dc', staff: '#e6cca2', hod: '#dcb694', restroom: '#c6c5da', stairs: '#b7bdbb' }
+export const kindLabels: Record<SpaceKind, string> = { classroom: 'Classroom', lab: 'Lab', staff: 'Staff room', hod: 'HOD room', restroom: 'Restroom', stairs: 'Stairs', facility: 'College facility', bank: 'Bank' }
+export const spaceColors: Record<SpaceKind, string> = { classroom: '#bbd8cf', lab: '#afc9dc', staff: '#e6cca2', hod: '#dcb694', restroom: '#c6c5da', stairs: '#b7bdbb', facility: '#c4d9cc', bank: '#d8c9a9' }

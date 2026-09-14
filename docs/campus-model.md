@@ -1,5 +1,9 @@
 # Jeppiaar campus spatial model
 
+### Large hall and opposite facilities building
+
+The large hall is centered on the garden's cross-axis (Z=0), removing its previous offset toward the lab buildings. The opposite narrow block is identified as the Facilities / Bank building: ground-floor college/visiting services (including possible blood-donation activities, not a confirmed permanent blood bank), first-floor bank, and unconfirmed second floor. Each assigned floor is represented by one provisional service zone; partitions, restrooms and stairs remain illustrative. The narrow footprint is retained with its entrance/corridor facing the garden. Cutaways scale to the building dimensions, and the camera approaches its garden-facing side.
+
 ### Building behind the lab block
 
 The building immediately behind the main lab building is identified as the AI & DS / Mechanical lab building. Ground-floor use is labs with department unspecified; first-floor use is Mechanical labs; second-floor occupancy is AI & DS. It uses the same footprint, three levels, terrace, orientation and provisional facilities as the main lab block. Two lab zones per floor are illustrative; the second-floor room types and partitions remain provisional because only AI & DS occupancy was confirmed. The existing building ID `north-east` is retained; its spaces have independent `aids-` IDs.
