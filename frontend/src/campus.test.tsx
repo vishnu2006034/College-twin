@@ -3,6 +3,21 @@ import CampusExplorer from './CampusExplorer'
 import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, floorsFor } from './campus'
 
 afterEach(cleanup)
+test('view and label controls preserve selected room and reset restores perspective', () => {
+  render(<CampusExplorer editionId="a" rooms={[]}/>)
+  fireEvent.click(screen.getByRole('button', { name: 'Explore IT floor →' }))
+  fireEvent.click(screen.getByRole('button', { name: 'F3 Staff room' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Top view' }))
+  expect(screen.getByRole('button', { name: 'Top view' })).toHaveAttribute('aria-pressed', 'true')
+  fireEvent.click(screen.getByRole('button', { name: 'Labels on' }))
+  expect(screen.getByRole('button', { name: 'Labels off' })).toHaveAttribute('aria-pressed', 'false')
+  const panel = within(screen.getByRole('complementary', { name: 'Selected space information' }))
+  expect(panel.getByRole('heading', { name: 'F3' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Low view' }))
+  expect(panel.getByRole('heading', { name: 'F3' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Reset view' }))
+  expect(screen.getByRole('button', { name: 'Perspective' })).toHaveAttribute('aria-pressed', 'true')
+})
 test('opposite buildings face the garden and lab floors have their own departments', () => {
   for (const [frontId, oppositeId] of [[IT_BUILDING, ECE_BUILDING], [CSE_BUILDING, LAB_BUILDING]]) {
     const front = buildings.find(b => b.id === frontId)!

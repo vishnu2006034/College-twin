@@ -1,5 +1,13 @@
 # Jeppiaar campus spatial model
 
+## Architectural rendering update
+
+The viewer now includes individual framed windows, sunshades, columns, corridor rails, entrance steps, parapets, stair-access structures and illustrative roof equipment. Rooms include illustrative desks, boards, office furniture, computer workstations or Mechanical-lab equipment. These visual assets do not establish actual furniture counts or building equipment inventories.
+
+Campus landscaping includes textured paving, asphalt and lawns, hedge-lined garden beds, palms, broadleaf trees, benches, lamps, road markings, sports courts, an irregular pond and an illustrative entrance/parking area. Textures are generated locally and deterministically; there are no external model/texture requests. Repeated facade, furniture and tree elements use instanced rendering to limit draw calls. The scene still uses demand rendering and capped pixel ratio.
+
+Perspective, top and low camera views and a label toggle support inspection. Floor selection still hides upper levels, and department assignments and physical-space identifiers are unchanged. This is a more detailed architectural interpretation of the supplied references, not a photorealistic scan or surveyed replica. Specific materials, furnishings, roof equipment, gate and landscape details remain illustrative until photographs or measurements establish them.
+
 The authenticated workspace opens an interactive campus model. Select a building in the scene or directory, select an IT/ECE floor, and select a room. Search supports labels such as F3, department names, and space functions. The existing synthetic dataset selector and inventory are under **Dataset workspace & room inventory**.
 
 ## Reference and confidence
