@@ -1,8 +1,8 @@
 import type { Room } from './api'
 
 export type Vec3 = [number, number, number]
-export type SpaceKind = 'classroom' | 'lab' | 'staff' | 'hod' | 'restroom' | 'stairs' | 'facility' | 'bank'
-export type Space = { id: string; buildingId: string; label: string; kind: SpaceKind; floor: number; department?: string; x: number; width: number; provisional: boolean }
+export type SpaceKind = 'classroom' | 'lab' | 'staff' | 'hod' | 'restroom' | 'stairs' | 'facility' | 'bank' | 'auditorium' | 'chamber' | 'library' | 'principal' | 'exam' | 'passage'
+export type Space = { id: string; buildingId: string; label: string; kind: SpaceKind; floor: number; department?: string; x: number; width: number; provisional: boolean; z?: number; depth?: number; wing?: 'front' | 'left' | 'right' | 'rear'; note?: string }
 export type Building = { id: string; label: string; position: Vec3; size: Vec3; rotation?: number; detailed?: boolean; confidence: 'reference-derived' | 'provisional' }
 export type RoomBinding = { spaceId: string; editionId: string; roomId: string }
 export const IT_BUILDING = 'academic-it-ece'
@@ -12,6 +12,7 @@ export const LAB_BUILDING = 'mechanical'
 export const MBA_BUILDING = 'north-west-outer'
 export const AIDS_BUILDING = 'north-east'
 export const FACILITIES_BUILDING = 'east-wing'
+export const HALL_BUILDING = 'hall'
 export const geometry = { width: 84, depth: 15, floorHeight: 4, corridorDepth: 3.5, roomDepth: 10, wall: .22, facilityWidth: 6 }
 // +X runs left to right when looking from the garden (+Z). CSE reverses restrooms only.
 export const buildings: Building[] = [
@@ -23,7 +24,7 @@ export const buildings: Building[] = [
   { id: MBA_BUILDING, label: 'MBA / Lab building', position: [-46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: LAB_BUILDING, label: 'Lab building · Block 6', position: [46, 0, 55], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
   { id: AIDS_BUILDING, label: 'AI & DS / Mechanical lab building', position: [46, 0, 78], size: [geometry.width, geometry.floorHeight * 3, geometry.depth], rotation: Math.PI, detailed: true, confidence: 'reference-derived' },
-  { id: 'hall', label: 'Large hall', position: [117, 0, 0], size: [35, 10, 65], confidence: 'reference-derived' },
+  { id: HALL_BUILDING, label: 'Central hall', position: [117, 0, 0], size: [65, 10, 35], rotation: -Math.PI / 2, detailed: true, confidence: 'reference-derived' },
   { id: FACILITIES_BUILDING, label: 'Facilities / Bank building', position: [-105, 0, 0], size: [74, 12, 13], rotation: Math.PI / 2, detailed: true, confidence: 'reference-derived' },
   { id: 'courtyard-north', label: 'Courtyard complex · north', position: [-46, 0, 114], size: [84, 12, 14], confidence: 'provisional' },
   { id: 'courtyard-west', label: 'Courtyard complex · west', position: [-81, 0, 144], size: [14, 12, 48], confidence: 'provisional' },
@@ -33,6 +34,7 @@ export const buildings: Building[] = [
 export const floors = [{ level: 0, label: 'Ground · Labs' }, { level: 1, label: 'First · IT' }, { level: 2, label: 'Second · ECE' }, { level: 3, label: 'Terrace' }]
 export function floorsFor(buildingId: string) {
   const labels: Record<string, string[]> = {
+    [HALL_BUILDING]: ['Ground · Chambers & library', 'First · Auditorium & courtyard', 'Terrace'],
     [CSE_BUILDING]: ['Ground · CSE 2nd year', 'First · CSE 3rd year', 'Second · MCA', 'Terrace'],
     [ECE_BUILDING]: ['Ground · ECE', 'First · ECE', 'Second · ECE', 'Terrace'],
     [LAB_BUILDING]: ['Ground · Mechanical labs', 'First · CSE / MCA labs', 'Second · IT / AI & DS labs', 'Terrace'],
@@ -105,11 +107,43 @@ facilitySpaces.push(
   { id: 'facilities-l0-service-area', buildingId: FACILITIES_BUILDING, label: 'College facilities / visiting services', kind: 'facility', floor: 0, x: 0, width: 60, provisional: true },
   { id: 'facilities-l1-bank', buildingId: FACILITIES_BUILDING, label: 'Bank', kind: 'bank', floor: 1, x: 0, width: 60, provisional: true },
 )
-export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces, ...mbaSpaces, ...aidsSpaces, ...facilitySpaces]
+// Hall coordinates: garden at +Z, rear at -Z; dimensions and door widths are illustrative.
+function hallSpace(id: string, label: string, kind: SpaceKind, floor: number, x: number, z: number, width: number, depth: number, wing: Space['wing'], provisional = false): Space {
+  return { id: `hall-${id}`, buildingId: HALL_BUILDING, label, kind, floor, x, z, width, depth, wing, provisional,
+    note: 'Dimensions, furnishings and door positions are approximate. Room labels are descriptive, not official room numbers.' }
+}
+export const hallSpaces: Space[] = [
+  ...[-1, 1].flatMap(side => [0, 1].map(i => hallSpace(`g-chamber-${side < 0 ? 'left' : 'right'}-${i + 1}`, `${side < 0 ? 'Left' : 'Right'} entrance chamber ${i + 1}`, 'chamber', 0, side * 12.5, 7.5 + i * 14, 19, 14, 'front'))),
+  hallSpace('g-entry', 'Main entrance to courtyard', 'passage', 0, 0, 14.5, 6, 28, 'front'),
+  hallSpace('g-left', 'Large chamber', 'chamber', 0, -27, -12.5, 10, 24, 'left'),
+  hallSpace('g-rear', 'Rear chamber', 'chamber', 0, 0, -29, 44, 7, 'rear'),
+  hallSpace('g-library', 'Library', 'library', 0, 27, -12.5, 10, 24, 'right'),
+  hallSpace('f-auditorium', 'Auditorium', 'auditorium', 1, 0, 14.5, 38, 28, 'front'),
+  ...[0, 1].flatMap(floor => [
+    hallSpace(`${floor}-stairs-left`, 'Left stairs · boys side', 'stairs', floor, -27, 26.5, 10, 4, 'left'),
+    hallSpace(`${floor}-boys`, 'Boys’ restroom', 'restroom', floor, -27, 22.5, 10, 4, 'left', floor === 0),
+    hallSpace(`${floor}-stairs-right`, 'Right stairs · girls side', 'stairs', floor, 27, 26.5, 10, 4, 'right'),
+    hallSpace(`${floor}-girls`, 'Girls’ restroom', 'restroom', floor, 27, 22.5, 10, 4, 'right', true),
+    hallSpace(`${floor}-front-corridor`, 'Front corridor · both stairs', 'passage', floor, 0, 30.5, 64, 4, 'front'),
+  ]),
+  ...[0, 1, 2, 3].map(i => hallSpace(`f-class-${i + 1}`, `Auditorium-side classroom ${i + 1}`, 'classroom', 1, -27, 18.5 - i * 4, 10, 4, 'left')),
+  hallSpace('f-left-staff', 'Auditorium-side staff room', 'staff', 1, -27, 2.5, 10, 4, 'left'),
+  hallSpace('f-principal', 'Principal room', 'principal', 1, -24, -29, 16, 7, 'rear'),
+  hallSpace('f-hod', 'HOD room', 'hod', 1, -8, -29, 16, 7, 'rear'),
+  hallSpace('f-staff', 'Rear staff room', 'staff', 1, 8, -29, 16, 7, 'rear'),
+  hallSpace('f-exam', 'Exam cell', 'exam', 1, 24, -29, 16, 7, 'rear'),
+  hallSpace('f-entry', 'Right wing auditorium entrance', 'passage', 1, 27, 10.5, 10, 20, 'right'),
+  // Retain existing space IDs while correcting their floor assignment.
+  ...[0, 1, 2].map(i => hallSpace(`s-left-class-${i + 1}`, `Courtyard left classroom ${i + 1}`, 'classroom', 1, -27, -4.5 - i * 8, 10, 8, 'left')),
+  ...[0, 1].map(i => hallSpace(`s-right-class-${i + 1}`, `Courtyard right classroom ${i + 1}`, 'classroom', 1, 27, -6.5 - i * 12, 10, 12, 'right')),
+  { ...hallSpace('s-terrace-stairs', 'Courtyard stairs to terrace', 'stairs', 1, -14, -20, 10, 5, 'left'), note: 'Courtyard sketch marker 7: stairs from the first floor to the upper terrace. Dimensions and landings are approximate.' },
+]
+
+export const spaces: Space[] = [...itSpaces, ...cseSpaces, ...eceSpaces, ...labSpaces, ...mbaSpaces, ...aidsSpaces, ...facilitySpaces, ...hallSpaces]
 export const bindings: RoomBinding[] = []
 export function linkedRoom(spaceId: string, editionId: string, rooms: Room[], links = bindings) {
   const binding = links.find(item => item.spaceId === spaceId && item.editionId === editionId)
   return binding ? rooms.find(room => room.id === binding.roomId) : undefined
 }
-export const kindLabels: Record<SpaceKind, string> = { classroom: 'Classroom', lab: 'Lab', staff: 'Staff room', hod: 'HOD room', restroom: 'Restroom', stairs: 'Stairs', facility: 'College facility', bank: 'Bank' }
-export const spaceColors: Record<SpaceKind, string> = { classroom: '#bbd8cf', lab: '#afc9dc', staff: '#e6cca2', hod: '#dcb694', restroom: '#c6c5da', stairs: '#b7bdbb', facility: '#c4d9cc', bank: '#d8c9a9' }
+export const kindLabels: Record<SpaceKind, string> = { classroom: 'Classroom', lab: 'Lab', staff: 'Staff room', hod: 'HOD room', restroom: 'Restroom', stairs: 'Stairs', facility: 'College facility', bank: 'Bank', auditorium: 'Auditorium', chamber: 'Chamber', library: 'Library', principal: 'Principal office', exam: 'Exam cell', passage: 'Entrance / passage' }
+export const spaceColors: Record<SpaceKind, string> = { classroom: '#bbd8cf', lab: '#afc9dc', staff: '#e6cca2', hod: '#dcb694', restroom: '#c6c5da', stairs: '#b7bdbb', facility: '#c4d9cc', bank: '#d8c9a9', auditorium: '#d8a995', chamber: '#d5c7ad', library: '#a9c8d9', principal: '#e2c594', exam: '#c4b6d8', passage: '#e6ddc8' }

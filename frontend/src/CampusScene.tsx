@@ -4,7 +4,8 @@ import { Html, OrbitControls } from '@react-three/drei'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { BuildingExterior, RoomFurniture } from './SceneArchitecture'
 import SceneLandscape from './SceneLandscape'
-import { buildings, geometry, spaces, spaceColors, type Vec3, type Space } from './campus'
+import HallBuilding from './HallBuilding'
+import { buildings, HALL_BUILDING, geometry, spaces, spaceColors, type Vec3, type Space } from './campus'
 
 export type SceneProps = { view: 'perspective' | 'plan' | 'ground'; labels: boolean; buildingId: string | null; floor: number | null; spaceId: string | null; reset: number; onBuilding: (id: string) => void; onSpace: (id: string) => void; onFailure: () => void }
 function Box({ at, size, color, onClick }: { at: Vec3; size: Vec3; color: string; onClick?: (e: ThreeEvent<MouseEvent>) => void }) {
@@ -16,7 +17,7 @@ function CameraRig({ buildingId, floor, reset, view }: Pick<SceneProps, 'buildin
   useEffect(() => {
     const building = buildings.find(b => b.id === buildingId)
     const [x, , z] = building?.position ?? [0, 0, 15]
-    const y = floor === null ? 4 : floor * geometry.floorHeight
+    const y = floor === null ? 4 : floor * (buildingId === HALL_BUILDING ? 5 : geometry.floorHeight)
     const framing = Math.max(1, 1.55 / (size.width / size.height))
     camera.position.set(x + (building ? 65 * Math.sin(building.rotation ?? 0) : 235) * framing, (building ? 54 : 280) * framing, z + (building ? 65 * Math.cos(building.rotation ?? 0) : 300) * framing)
     if (view === 'plan') camera.position.set(x, (building ? 85 : 460) * framing, z + (building?.rotation ? -.01 : .01))
@@ -59,7 +60,7 @@ export default function CampusScene(props: SceneProps) {
     <color attach="background" args={['#c7d6d6']}/><fog attach="fog" args={['#c7d6d6', 440, 950]}/><hemisphereLight args={['#d1e1ed', '#797052', 1.1]}/><ambientLight intensity={.35}/><directionalLight color="#fff0d4" position={[-130, 150, 110]} intensity={3.2} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-230} shadow-camera-right={230} shadow-camera-top={230} shadow-camera-bottom={-230} shadow-camera-far={500} shadow-bias={-.001}/>
     <SceneLandscape/>
     {buildings.map(building => <group key={building.id} position={building.position} rotation={[0, building.rotation ?? 0, 0]} onClick={e => { e.stopPropagation(); props.onBuilding(building.id) }}>
-      {building.detailed && props.buildingId === building.id ? <DetailedBuilding {...props}/> : <BuildingExterior building={building} selected={props.buildingId === building.id}/>}
+      {building.id === HALL_BUILDING ? <HallBuilding floor={props.buildingId === building.id ? props.floor : null} spaceId={props.spaceId} labels={props.labels} onSpace={props.onSpace}/> : building.detailed && props.buildingId === building.id ? <DetailedBuilding {...props}/> : <BuildingExterior building={building} selected={props.buildingId === building.id}/>}
       {props.labels && (building.detailed || props.buildingId === building.id) && <Html position={[0, building.size[1] + 4, 0]} center zIndexRange={[15, 0]}><button className="building-tag" onClick={() => props.onBuilding(building.id)}>{building.label}</button></Html>}
     </group>)}
     <CameraRig {...props}/>

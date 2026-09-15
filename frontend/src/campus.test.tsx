@@ -3,6 +3,58 @@ import CampusExplorer from './CampusExplorer'
 import { buildings, floors, spaces, linkedRoom, IT_BUILDING, CSE_BUILDING, ECE_BUILDING, LAB_BUILDING, MBA_BUILDING, AIDS_BUILDING, FACILITIES_BUILDING, floorsFor } from './campus'
 
 afterEach(cleanup)
+test('central hall has four entry chambers, a clear courtyard and the confirmed first-floor arrangement', () => {
+  const hall = spaces.filter(s => s.buildingId === 'hall')
+  expect(floorsFor('hall')).toHaveLength(3)
+  const chambers = hall.filter(s => s.floor === 0 && s.wing === 'front' && s.kind === 'chamber')
+  expect(chambers.filter(s => s.x < 0)).toHaveLength(2)
+  expect(chambers.filter(s => s.x > 0)).toHaveLength(2)
+  expect(chambers.every(s => Math.abs(s.x) - s.width / 2 >= 3)).toBe(true)
+  const classes = hall.filter(s => s.floor === 1 && s.kind === 'classroom')
+  expect(classes).toHaveLength(9)
+  expect(classes.filter(s => s.label.startsWith('Auditorium-side'))).toHaveLength(4)
+  expect(hall.find(s => s.id === 'hall-f-entry')?.wing).toBe('right')
+  expect(hall.find(s => s.kind === 'principal')!.x).toBeLessThan(0)
+  expect(hall.find(s => s.kind === 'exam')!.x).toBeGreaterThan(0)
+  for (const a of hall) for (const b of hall) {
+    if (a.id >= b.id || a.floor !== b.floor) continue
+    expect(Math.abs(a.x - b.x) >= (a.width + b.width) / 2 || Math.abs(a.z! - b.z!) >= (a.depth! + b.depth!) / 2).toBe(true)
+  }
+})
+test('hall floor plan opens room details without synthetic bindings and resets', () => {
+  render(<CampusExplorer editionId="a" rooms={[]}/> )
+  fireEvent.click(screen.getByRole('button', { name: /Central hall 2 floors/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Ground · Chambers & library' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Left entrance chamber 1' }))
+  expect(screen.getByRole('heading', { name: 'Left entrance chamber 1' })).toBeVisible()
+  expect(screen.getByRole('heading', { name: 'No linked dataset record' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'First · Auditorium & courtyard' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Right wing auditorium entrance' }))
+  expect(screen.getByRole('heading', { name: 'Right wing auditorium entrance' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Courtyard stairs to terrace' }))
+  expect(screen.getByRole('heading', { name: 'Courtyard stairs to terrace' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Terrace' }))
+  expect(screen.getByText(/Upper terrace reached by the courtyard-side stairs/)).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Reset view' }))
+  expect(screen.queryByRole('region', { name: 'Building floors' })).not.toBeInTheDocument()
+})
+test('both sketches share the first floor with courtyard behind auditorium and clear front stair corridor', () => {
+  const rooms = spaces.filter(s => s.buildingId === 'hall' && s.floor === 1)
+  expect(rooms.filter(s => s.kind === 'classroom' && s.label.startsWith('Courtyard left'))).toHaveLength(3)
+  expect(rooms.filter(s => s.kind === 'classroom' && s.label.startsWith('Courtyard right'))).toHaveLength(2)
+  expect(rooms.filter(s => s.wing === 'rear').map(s => s.kind)).toEqual(['principal', 'hod', 'staff', 'exam'])
+  const stairs = rooms.find(s => s.id === 'hall-s-terrace-stairs')!
+  expect(stairs.x).toBeLessThan(0)
+  expect(stairs.z).toBeLessThan(0)
+  const auditorium = rooms.find(s => s.kind === 'auditorium')!
+  expect(auditorium.z! - auditorium.depth! / 2).toBeGreaterThan(0)
+  expect(spaces.some(s => s.buildingId === 'hall' && s.floor > 1)).toBe(false)
+  const corridor = rooms.find(s => s.id === 'hall-1-front-corridor')!
+  for (const id of ['hall-1-stairs-left', 'hall-1-stairs-right']) {
+    const stair = rooms.find(s => s.id === id)!
+    expect(corridor.z! - corridor.depth! / 2).toBeGreaterThanOrEqual(stair.z! + stair.depth! / 2)
+  }
+})
 test('hall is centered and opposite facilities building has bank and unconfirmed floor', () => {
   const hall = buildings.find(b => b.id === 'hall')!
   const facility = buildings.find(b => b.id === FACILITIES_BUILDING)!
