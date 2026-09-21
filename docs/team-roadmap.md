@@ -1,6 +1,6 @@
 # College Twin — Team Roadmap & Completion Checklist
 
-**Planning snapshot:** 14 September 2026 · **Team:** 3 people · **Baseline:** 12 project weeks
+**Planning snapshot:** 21 September 2026 · **Team:** 3 people · **Baseline:** 12 project weeks
 
 **Goal:** Deliver a demonstrable college digital-twin prototype where a user explores the campus, selects a date, inspects operational problems, closes a room, compares a proposed reassignment, and reviews future attendance risk.
 
@@ -30,17 +30,17 @@ These are proposed assignments, not commitments already made by teammates. Every
 | Area | Current position | What still needs attention |
 | --- | --- | --- |
 | React + FastAPI + PostgreSQL foundation | Implemented | Repeat startup and login on the teammates' machines |
-| Authentication and room/dataset reads | Implemented | PostgreSQL integration suite and final startup smoke test |
+| Authentication and room/dataset reads | Implemented; PostgreSQL suite verified | Repeat startup on teammates' machines |
 | Synthetic data generator | Implemented | Deliberate-conflict, sparse-data and shifted-data fixtures |
 | 3D campus, floor selection, room panels, search | Implemented | Team validation of geometry and provisional spaces |
 | IT/ECE, CSE, opposite ECE and lab buildings | Modeled | Confirm remaining room counts, room labels and facilities |
-| Physical-room ↔ synthetic-room mapping | Interface exists; bindings empty | Explicit, edition-specific, reviewed mappings |
-| Dated metrics and anomalies | Not implemented | Next core development milestone |
+| Physical-room ↔ synthetic-room mapping | Review screen and persistence implemented; actual bindings intentionally empty | Team selects and approves exact edition-specific links |
+| Dated metrics and anomalies | Implemented, filtered room views and local performance verified | Team domain acceptance |
 | Room-closure simulation | Not implemented | Depends on verified state/conflict logic |
 | Future attendance-risk prediction | Not implemented | Depends on temporal data and evaluation fixtures |
 | Final end-to-end demo, report and defense | Not complete | Integrate, measure, document and rehearse |
 
-**Latest recorded checks from this task:** 13 frontend tests and the frontend build passed after the campus updates; 21 non-integration backend tests passed after local configuration changes. These are prior run results, not a fresh run for this document. Eight PostgreSQL integration tests remain unverified. Docker work remains deferred.
+**Latest recorded checks (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests with no skips; 28 frontend tests, build, Ruff and Python compilation passed. Browser snapshot creation/retrieval and a disposable reviewed link → room-state flow passed against real endpoints. One-day/seven-day warm API p95: 94.75/481.94 ms. See [verification](m2-verification.md) and [performance](m2-performance.md). Docker work remains deferred.
 
 ### Campus facts to take into the team discussion
 
@@ -76,7 +76,7 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 **Lead: B · Support: A/C · Target: start of week 4**
 
 - [ ] **A1 · B:** Demonstrate clean startup, health check, login, logout and dataset selection using the saved local configuration; repeat on each teammate's machine.
-- [ ] **A2 · B:** Run the eight pending integration tests against a separate PostgreSQL test database; save results and fix failures. Do not test destructively against the demo database.
+- [x] **A2 · B:** Original eight database tests plus six snapshot/mapping integration tests passed in isolated schemas in `college_twin_test`; see the verification record.
 - [ ] **A3 · A:** Walk through all four detailed buildings with the team; record confirmed facts versus approximations, including the ECE allocation question above.
 - [ ] **A4 · A:** Confirm CSE ground-floor rooms, separate ECE interiors, lab partitions, restroom sides and floor naming; correct only facts the team can verify.
 - [ ] **A5 · A/B:** List the physical spaces needed for the demo and match them explicitly to room IDs in a chosen synthetic edition; do not match by label alone.
@@ -89,15 +89,15 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 
 **Lead: B · A builds the UI at the same time · C supplies examples · Target: weeks 4–5**
 
-- [ ] **B1 · All:** Agree on snapshot inputs/outputs: dataset, cutoff date/time, analysis window, room/attendance/workload metrics, provenance and error states.
-- [ ] **B2 · C:** Create small hand-calculated clean and conflicting examples, plus empty, missing-attendance and cancelled-class cases.
-- [ ] **B3 · B:** Implement dated snapshots that exclude records not known at the cutoff and expose the denominator behind each rate.
-- [ ] **B4 · B:** Detect room overlaps, faculty overlaps, section overlaps, capacity violations and incompatible room/lab types.
-- [ ] **B5 · A:** Build date selection, metric panels, conflict list and room details against the agreed mock responses.
-- [ ] **B6 · A/B:** Replace mocks with real endpoints; selecting a mapped campus room filters the same snapshot and conflict data.
-- [ ] **B7 · B/C:** Test known totals, interval boundaries, duplicate conflicts, missing observations and zero availability. Label scheduled utilization separately from measured occupancy.
+- [ ] **B1 · All:** Contract implemented in [m2-contract.md](m2-contract.md) and typed models; team sign-off remains pending.
+- [x] **B2 · C:** Hand-calculated clean/conflicting, empty, missing-attendance, future-status and cancelled-class fixtures implemented and passing.
+- [x] **B3 · B:** Dated frozen snapshots exclude observations not known at cutoff and expose rate denominators; integration and arithmetic tests pass.
+- [x] **B4 · B:** All five rules implemented with positive/negative fixtures, independent-resource and three-way pair checks.
+- [x] **B5 · A:** Date selection, metrics, conflicts and mapped room details implemented and tested against mocks and real endpoints.
+- [x] **B6 · A/B:** Real endpoints and campus-room filtering verified with a disposable reviewed binding. Actual mappings intentionally remain unconfirmed per user instruction; use the completed review screen when ready.
+- [x] **B7 · B/C:** Totals, boundaries, deduplication, missing observations and zero availability verified; scheduled use is labelled explicitly.
 
-**Gate B:** A selected synthetic date produces explainable metrics; every conflict rule matches the hand-checked examples; the 3D view and dashboard agree.
+**Gate B:** Software behavior and local performance pass; linked campus selection and the dashboard agree in disposable fixtures. Human acceptance of domain assumptions and actual demo mappings remain intentionally open. See [M2 review handoff](m2-review.md).
 
 ### Phase C — M3: Close a room and compare the outcome
 
@@ -132,7 +132,7 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 - [ ] **E2 · A:** Verify keyboard navigation, narrow-screen layout, search, floor changes, loading/empty/error states and WebGL fallback.
 - [ ] **E3 · B:** Check viewer/planner permissions, origin/CSRF protection, session expiry, invalid inputs and dataset/model mismatches.
 - [ ] **E4 · All:** Run the required frontend, backend, PostgreSQL integration and end-to-end checks; save outputs tied to the tested revision.
-- [ ] **E5 · B/C:** Measure snapshot, scenario and prediction response times on the demo machine. Record hardware, dataset size, repetitions and cold/warm conditions; compare with the blueprint's targets.
+- [ ] **E5 · B/C:** Snapshot performance measured and recorded in [m2-performance.md](m2-performance.md); scenario and prediction measurements remain for M3/M4. In-process API timing excludes network/browser rendering and true cold starts.
 - [ ] **E6 · A:** Measure campus interaction smoothness on the presentation laptop and reduce rendering cost if necessary.
 - [ ] **E7 · All:** Freeze a known-working demo edition and revision; rehearse database restore/startup and test a presentation backup video.
 

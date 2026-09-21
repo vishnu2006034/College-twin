@@ -17,6 +17,9 @@ where = ["."]
 include = ["app", "app.*"]
 namespaces = false
 
+[tool.setuptools.package-data]
+app = ["campus_catalog.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

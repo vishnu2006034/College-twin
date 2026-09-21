@@ -1,0 +1,538 @@
+[
+  {
+    "id": "aids-l0-room-1",
+    "label": "Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "Ground · Labs"
+  },
+  {
+    "id": "aids-l0-room-2",
+    "label": "Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "Ground · Labs"
+  },
+  {
+    "id": "aids-l1-room-1",
+    "label": "Mechanical Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "First · Mechanical labs"
+  },
+  {
+    "id": "aids-l1-room-2",
+    "label": "Mechanical Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "First · Mechanical labs"
+  },
+  {
+    "id": "aids-l2-room-1",
+    "label": "AI & DS Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "Second · AI & DS"
+  },
+  {
+    "id": "aids-l2-room-2",
+    "label": "AI & DS Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "AI & DS / Mechanical lab building",
+    "floor": "Second · AI & DS"
+  },
+  {
+    "id": "cse-l0-room-1",
+    "label": "G1",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "CSE · Block 5",
+    "floor": "Ground · CSE 2nd year"
+  },
+  {
+    "id": "cse-l0-room-2",
+    "label": "G2",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "CSE · Block 5",
+    "floor": "Ground · CSE 2nd year"
+  },
+  {
+    "id": "cse-l0-room-5",
+    "label": "G5",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "CSE · Block 5",
+    "floor": "Ground · CSE 2nd year"
+  },
+  {
+    "id": "cse-l0-room-6",
+    "label": "G6",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "CSE · Block 5",
+    "floor": "Ground · CSE 2nd year"
+  },
+  {
+    "id": "cse-l0-room-7",
+    "label": "G7",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "CSE · Block 5",
+    "floor": "Ground · CSE 2nd year"
+  },
+  {
+    "id": "cse-l1-room-1",
+    "label": "F1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "First · CSE 3rd year"
+  },
+  {
+    "id": "cse-l1-room-2",
+    "label": "F2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "First · CSE 3rd year"
+  },
+  {
+    "id": "cse-l1-room-5",
+    "label": "F5",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "First · CSE 3rd year"
+  },
+  {
+    "id": "cse-l1-room-6",
+    "label": "F6",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "First · CSE 3rd year"
+  },
+  {
+    "id": "cse-l1-room-7",
+    "label": "F7",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "First · CSE 3rd year"
+  },
+  {
+    "id": "cse-l2-room-1",
+    "label": "S1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "Second · MCA"
+  },
+  {
+    "id": "cse-l2-room-2",
+    "label": "S2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "Second · MCA"
+  },
+  {
+    "id": "cse-l2-room-5",
+    "label": "S5",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "Second · MCA"
+  },
+  {
+    "id": "cse-l2-room-6",
+    "label": "S6",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "Second · MCA"
+  },
+  {
+    "id": "cse-l2-room-7",
+    "label": "S7",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "CSE · Block 5",
+    "floor": "Second · MCA"
+  },
+  {
+    "id": "ece-l0-room-1",
+    "label": "Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Ground · ECE"
+  },
+  {
+    "id": "ece-l0-room-2",
+    "label": "Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Ground · ECE"
+  },
+  {
+    "id": "ece-l1-room-1",
+    "label": "F1",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "First · ECE"
+  },
+  {
+    "id": "ece-l1-room-2",
+    "label": "F2",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "First · ECE"
+  },
+  {
+    "id": "ece-l1-room-5",
+    "label": "F5",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "First · ECE"
+  },
+  {
+    "id": "ece-l1-room-6",
+    "label": "F6",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "First · ECE"
+  },
+  {
+    "id": "ece-l1-room-7",
+    "label": "F7",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "First · ECE"
+  },
+  {
+    "id": "ece-l2-room-1",
+    "label": "S1",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "ece-l2-room-2",
+    "label": "S2",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "ece-l2-room-5",
+    "label": "S5",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "ece-l2-room-6",
+    "label": "S6",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "ece-l2-room-7",
+    "label": "S7",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "ECE building",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "hall-f-class-1",
+    "label": "Auditorium-side classroom 1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-f-class-2",
+    "label": "Auditorium-side classroom 2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-f-class-3",
+    "label": "Auditorium-side classroom 3",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-f-class-4",
+    "label": "Auditorium-side classroom 4",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-s-left-class-1",
+    "label": "Courtyard left classroom 1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-s-left-class-2",
+    "label": "Courtyard left classroom 2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-s-left-class-3",
+    "label": "Courtyard left classroom 3",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-s-right-class-1",
+    "label": "Courtyard right classroom 1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "hall-s-right-class-2",
+    "label": "Courtyard right classroom 2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "Central hall",
+    "floor": "First · Auditorium & courtyard"
+  },
+  {
+    "id": "it-ece-l0-room-1",
+    "label": "Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "IT / ECE · Block 3",
+    "floor": "Ground · Labs"
+  },
+  {
+    "id": "it-ece-l0-room-2",
+    "label": "Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "IT / ECE · Block 3",
+    "floor": "Ground · Labs"
+  },
+  {
+    "id": "it-ece-l1-room-1",
+    "label": "F1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "First · IT"
+  },
+  {
+    "id": "it-ece-l1-room-2",
+    "label": "F2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "First · IT"
+  },
+  {
+    "id": "it-ece-l1-room-5",
+    "label": "F5",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "First · IT"
+  },
+  {
+    "id": "it-ece-l1-room-6",
+    "label": "F6",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "First · IT"
+  },
+  {
+    "id": "it-ece-l1-room-7",
+    "label": "F7",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "First · IT"
+  },
+  {
+    "id": "it-ece-l2-room-1",
+    "label": "S1",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "it-ece-l2-room-2",
+    "label": "S2",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "it-ece-l2-room-5",
+    "label": "S5",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "it-ece-l2-room-6",
+    "label": "S6",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "it-ece-l2-room-7",
+    "label": "S7",
+    "kind": "classroom",
+    "provisional": false,
+    "building": "IT / ECE · Block 3",
+    "floor": "Second · ECE"
+  },
+  {
+    "id": "labs-l0-room-1",
+    "label": "Mechanical lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "Ground · Mechanical labs"
+  },
+  {
+    "id": "labs-l0-room-2",
+    "label": "Mechanical lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "Ground · Mechanical labs"
+  },
+  {
+    "id": "labs-l1-room-1",
+    "label": "CSE lab",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "First · CSE / MCA labs"
+  },
+  {
+    "id": "labs-l1-room-2",
+    "label": "MCA lab",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "First · CSE / MCA labs"
+  },
+  {
+    "id": "labs-l2-room-1",
+    "label": "IT lab",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "Second · IT / AI & DS labs"
+  },
+  {
+    "id": "labs-l2-room-2",
+    "label": "AI & DS lab",
+    "kind": "lab",
+    "provisional": true,
+    "building": "Lab building · Block 6",
+    "floor": "Second · IT / AI & DS labs"
+  },
+  {
+    "id": "mba-l0-room-1",
+    "label": "G1",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "Ground · MBA"
+  },
+  {
+    "id": "mba-l0-room-2",
+    "label": "G2",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "Ground · MBA"
+  },
+  {
+    "id": "mba-l0-room-5",
+    "label": "G5",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "Ground · MBA"
+  },
+  {
+    "id": "mba-l0-room-6",
+    "label": "G6",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "Ground · MBA"
+  },
+  {
+    "id": "mba-l0-room-7",
+    "label": "G7",
+    "kind": "classroom",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "Ground · MBA"
+  },
+  {
+    "id": "mba-l1-room-1",
+    "label": "Lab 1",
+    "kind": "lab",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "First · Labs"
+  },
+  {
+    "id": "mba-l1-room-2",
+    "label": "Lab 2",
+    "kind": "lab",
+    "provisional": true,
+    "building": "MBA / Lab building",
+    "floor": "First · Labs"
+  }
+]

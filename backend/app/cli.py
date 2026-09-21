@@ -49,6 +49,8 @@ def provision_app_role(password):
             cur.execute("GRANT SELECT ON app_user TO twin_app")
             cur.execute("GRANT SELECT, INSERT, DELETE ON auth_session TO twin_app")
             cur.execute("GRANT INSERT ON audit_log TO twin_app")
+            cur.execute("GRANT SELECT, INSERT ON state_snapshot TO twin_app")
+            cur.execute("GRANT SELECT, INSERT, UPDATE ON room_mapping TO twin_app")
         raw.commit()
     finally:
         raw.close()

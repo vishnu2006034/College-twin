@@ -1,0 +1,49 @@
+{
+  "measured_at": "2026-09-21T10:44:45.323876+00:00",
+  "os": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+  "logical_cpus": 16,
+  "python": "3.13.14",
+  "postgresql": "18.4",
+  "dataset_counts": {
+    "department": 2,
+    "program": 2,
+    "batch": 4,
+    "section": 8,
+    "student": 240,
+    "faculty": 16,
+    "course": 8,
+    "term": 1,
+    "room": 12,
+    "course_offering": 32,
+    "class_session": 2560,
+    "attendance": 76800
+  },
+  "seed": 42,
+  "edition_hash": "5df69b5836d0c8cc76bb566c1416e78935fd4253f0879ff4109692a77e0387d8",
+  "method": "FastAPI TestClient including auth, SQL, computation, JSON persistence and response serialization. Loopback PostgreSQL. Sequential unique-key creates; no concurrent load. Excludes TCP/browser rendering.",
+  "cold_definition": "First measured call after seed/login; application and OS/database caches are not cold. Subsequent calls are warm.",
+  "results": {
+    "one_day": {
+      "first_call_ms": 107.14,
+      "runs": 20,
+      "median_ms": 88.4,
+      "p95_ms": 94.75,
+      "max_ms": 99.69
+    },
+    "seven_days": {
+      "first_call_ms": 463.34,
+      "runs": 20,
+      "median_ms": 376.88,
+      "p95_ms": 481.94,
+      "max_ms": 490.32
+    },
+    "saved_room_read": {
+      "runs": 20,
+      "median_ms": 33.37,
+      "p95_ms": 41.97,
+      "max_ms": 49.8
+    }
+  },
+  "snapshot_p95_under_2s": true
+}

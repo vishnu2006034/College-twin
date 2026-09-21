@@ -11,11 +11,11 @@ export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message) }
 }
 
-export async function api<T>(path: string, body?: unknown): Promise<T> {
+export async function api<T>(path: string, body?: unknown, headers: Record<string, string> = {}): Promise<T> {
   const csrf = document.cookie.split('; ').find(value => value.startsWith('twin_csrf='))?.split('=')[1]
   const response = await fetch(`/api/v1${path}`, {
     method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json', ...(csrf ? { 'X-CSRF-Token': csrf } : {}) },
+    headers: { 'Content-Type': 'application/json', ...(csrf ? { 'X-CSRF-Token': csrf } : {}), ...headers },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   })
   if (!response.ok) {

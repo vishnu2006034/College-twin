@@ -1,6 +1,6 @@
-import { Component, lazy, Suspense, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import type { Room } from './api'
-import { buildings, floorsFor, spaces, IT_BUILDING, HALL_BUILDING, kindLabels, linkedRoom } from './campus'
+import { buildings, floorsFor, spaces, IT_BUILDING, HALL_BUILDING, kindLabels, linkedRoom, type RoomBinding } from './campus'
 import './campus.css'
 
 const CampusScene = lazy(() => import('./CampusScene'))
@@ -13,7 +13,7 @@ function supportsWebGL() {
   if (typeof window === 'undefined' || !window.WebGL2RenderingContext) return false
   try { const canvas = document.createElement('canvas'); const gl = canvas.getContext('webgl2'); gl?.getExtension('WEBGL_lose_context')?.loseContext(); return !!gl } catch { return false }
 }
-export default function CampusExplorer({ editionId, rooms }: { editionId: string; rooms: Room[] }) {
+export default function CampusExplorer({ editionId, rooms, links, onSpaceSelected, roomState, roomStateRoomId }: { editionId: string; rooms: Room[]; links?: RoomBinding[]; onSpaceSelected?: (id: string | null) => void; roomState?: ReactNode; roomStateRoomId?: string }) {
   const [buildingId, setBuilding] = useState<string | null>(null)
   const [floor, setFloor] = useState<number | null>(null)
   const [spaceId, setSpace] = useState<string | null>(null)
@@ -30,7 +30,8 @@ export default function CampusExplorer({ editionId, rooms }: { editionId: string
   const leftRestroom = floorSpaces.find(s => s.kind === 'restroom')?.label.replace(' restroom', '') ?? 'Left'
   const rightRestroom = [...floorSpaces].reverse().find(s => s.kind === 'restroom')?.label.replace(' restroom', '') ?? 'Right'
   const space = spaces.find(s => s.id === spaceId)
-  const record = space ? linkedRoom(space.id, editionId, rooms) : undefined
+  const record = space ? linkedRoom(space.id, editionId, rooms, links) : undefined
+  useEffect(() => { onSpaceSelected?.(spaceId) }, [spaceId, onSpaceSelected])
   const term = query.trim().toLowerCase()
   function selectBuilding(id: string) { setBuilding(id); setFloor(null); setSpace(null) }
   function selectSpace(id: string) { const target = spaces.find(s => s.id === id); if (target) { setBuilding(target.buildingId); setFloor(target.floor); setSpace(id) } }
@@ -53,7 +54,8 @@ export default function CampusExplorer({ editionId, rooms }: { editionId: string
         </section>}
       </div>
       <aside className="space-inspector" aria-label="Selected space information" aria-live="polite"><p className="eyebrow">SPACE DETAILS</p>{space ? <><h2>{space.label}</h2><span className={`function-chip ${space.kind}`}>{kindLabels[space.kind]}</span><dl><dt>Building</dt><dd>{building?.label}</dd><dt>Floor</dt><dd>{floors[space.floor].label}</dd><dt>Department</dt><dd>{space.department ?? 'Not confirmed'}</dd><dt>Assignment</dt><dd>{space.provisional ? 'Provisional' : 'User-confirmed'}</dd><dt>Geometry</dt><dd>Approximate</dd></dl>{space.note && <p>{space.note}</p>}<div className="data-link"><p className="eyebrow">DATA CONNECTION</p>{record ? <><p>Synthetic dataset record</p><strong>{record.code}</strong><p>Capacity: {record.capacity}</p>{record.lab_type && <p>Lab type: {record.lab_type}</p>}</> : <><h3>No linked dataset record</h3><p>This physical space has not been mapped to a room in the selected synthetic dataset.</p></>}</div></> : building ? <><h2>{building.label}</h2><p>{building.detailed ? 'Select a floor, then a room to inspect its function and data connection.' : 'Exterior geometry is available. Interior details have not been confirmed.'}</p><dl><dt>Reference</dt><dd>{building.confidence === 'provisional' ? 'Identity unconfirmed' : 'Campus imagery / user description'}</dd><dt>Dimensions</dt><dd>Approximate</dd></dl>{building.detailed && <button onClick={() => { setFloor(1); setSpace(null) }}>Explore {buildingId === IT_BUILDING ? 'IT' : building.label} floor →</button>}</> : <><div className="inspector-symbol">⌘</div><h2>A place for every insight.</h2><p>Select a building to begin. IT / ECE, CSE, ECE and the lab building include explorable floors, classrooms, offices, labs, and facilities.</p><button onClick={() => { selectBuilding(IT_BUILDING); setFloor(1) }}>Explore IT floor →</button><div className="inspector-stat"><strong>Floor by floor</strong><span>Explore confirmed uses and provisional geometry</span></div></>}
-        <div className="inspector-disclaimer">Approximate architecture and illustrative furnishings. Synthetic data remains separate. Live occupancy and simulations are not connected.</div>
+        {record && record.id === roomStateRoomId && roomState}
+        <div className="inspector-disclaimer">Approximate architecture and illustrative furnishings. Reviewed links show dated synthetic state. Live occupancy and simulations are not connected.</div>
       </aside>
     </div>
   </section>

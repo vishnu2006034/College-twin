@@ -1,6 +1,6 @@
 # College Twin
 
-Synthetic-data college digital-twin prototype. M1 provides a React frontend shell, FastAPI authentication and reference-data reads, a PostgreSQL schema/migration, and a reproducible relational generator. State metrics, anomalies, simulations and ML are later milestones, not implemented features.
+Synthetic-data college digital-twin prototype. M1 provides authentication, reference data and reproducible generation. M2 adds saved dated snapshots, state metrics, deterministic conflicts, reviewed campus-room links and filtered room state. Actual mappings remain unconfirmed until you approve them in the review screen. Simulations and ML remain unimplemented. See [M2 review instructions](docs/m2-review.md), [verification and migration setup](docs/m2-verification.md), [performance](docs/m2-performance.md), and the [milestone tracker](docs/blueprint.md#current-progress-tracker).
 
 The authenticated workspace now includes an interactive 3D Jeppiaar campus model with IT/ECE floor and room exploration. Geometry is approximate; room assignments follow user-confirmed details. Physical spaces remain separate from synthetic records until explicitly mapped. See [campus model guide](docs/campus-model.md) for the layout, configuration, limitations, and verification instructions.
 
@@ -218,7 +218,7 @@ For PostgreSQL integration tests, set `TEST_DATABASE_URL` to a dedicated databas
 
 ## Deferred container setup
 
-Container files are supplied but Docker startup/build and PostgreSQL integration verification remain pending. When Docker work is resumed:
+Container files are supplied but Docker startup/build remain pending. PostgreSQL integration verification passed locally on 2026-09-21 without Docker. When Docker work is resumed:
 
 ```powershell
 python scripts\setup_env.py
@@ -233,7 +233,7 @@ Optional later PostgreSQL tests: `docker compose --profile test up -d test-db`, 
 
 - All generated records are synthetic and visibly labelled. No contact information is generated.
 - M1's clean generator has complete attendance and feasible timetables. Sparse, shifted and deliberate-anomaly fixtures are later evaluation work.
-- Historical sessions are stored as held with recording timestamps. M2 must respect those timestamps when reconstructing an earlier cutoff.
+- Historical sessions are stored as held with recording timestamps. M2 respects those timestamps when reconstructing an earlier cutoff; before the recorded final status it assumes the original timetable was scheduled.
 - No AI provider is called and no simulation modifies source data.
 - Login throttling is per process. Keep the planned single API worker; redesign throttling before scaling out.
 - No integration test or Docker result is claimed until it actually runs successfully.

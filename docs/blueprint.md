@@ -1,8 +1,8 @@
 # AI-Powered College Digital Twin — Technical Blueprint
 
-Status: M1 foundation implemented and local app working according to user confirmation. Automated PostgreSQL integration verification remains pending; Docker setup deferred by user. Next milestone: M2 state and anomalies. Updated 2026-09-13.
+Status: M2 software implemented and locally verified, including mapping review, linked-room filtering and measured default-size performance. Actual room links remain unconfirmed at the user's request; team domain review remains pending. The M1 database verification gap is closed. Docker remains deferred. Updated 2026-09-21.
 
-This is the living source of truth requested by the master prompt. M1 implementation was explicitly requested on 2026-09-13. M1 covers foundation and clean synthetic data only; later milestone contracts remain proposed. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
+This is the living source of truth requested by the master prompt. M1 was authorized on 2026-09-13 and the first M2 slice on 2026-09-21. M1 and the documented M2 slice are implemented; M3 and later contracts remain proposed. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
 
 ## 1. Vision & scope
 
@@ -33,16 +33,16 @@ Update this tracker after each milestone's implementation and verification. Thes
 | Milestone | Current status | Remaining work / next action |
 |---|---|---|
 | M0 Design | Completed for the agreed MVP scope | Refine later feature contracts before their implementation |
-| M1 Foundation | Implemented; local app working, user-confirmed | Run the eight pending PostgreSQL integration tests against a separate test database; Docker verification remains deferred |
-| M2 State and anomalies | Next; not started | Dated snapshots, attendance/room/workload metrics, conflict rules, dashboard and tests |
+| M1 Foundation | Implemented; PostgreSQL integration verified | Teammate-machine startup and deferred Docker verification remain separate gates |
+| M2 State and anomalies | Software implemented and locally verified; review-ready | Team accepts domain assumptions and approves actual demo links in the review screen; links intentionally remain empty |
 | M3 Room-closure simulation | Not started | Depends on M2's verified state and conflict rules |
 | M4 Attendance-risk prediction | Not started | Depends on verified data and temporal feature contracts; can overlap M3 |
 | M5 Integration | Not started as a milestone | Full scenario/prediction flows; frontend work begins during M2 |
 | M6 Evaluation and defense | Not started | Evaluation evidence, report and viva preparation |
 
-**Latest evidence:** The user confirms the local website is now working after PostgreSQL setup and login-origin troubleshooting. This is a manual smoke-check report, not evidence that the automated PostgreSQL suite passed. Previously executed checks: 18 backend tests passed, 3 frontend tests passed, production frontend build passed. Eight database integration tests remain pending.
+**Latest evidence (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests in isolated schemas in `college_twin_test`; no skips. 28 frontend tests and the production build passed. Ruff and Python compilation passed. Browser checks covered real snapshot creation/retrieval and a disposable reviewed mapping with linked room state, including narrow-screen layout. Warm snapshot p95: 94.75 ms for one day, 481.94 ms for seven days on the default dataset. See [verification](m2-verification.md), [performance](m2-performance.md) and [review handoff](m2-review.md).
 
-**Next delivery:** Close M1's database verification gap without requiring Docker, using a separate PostgreSQL test database. Then implement M2 in this order: finalize snapshot request/response examples; build dated state calculations and conflict detection; build the dashboard against mock responses in parallel with backend work; connect the real endpoints and verify hand-calculated fixtures. M2 is complete when a user can select a synthetic date, inspect correctly labelled state metrics, and see verified room/faculty/section conflicts, capacity violations and room-type mismatches. M2 implementation has not been requested yet.
+**Next delivery:** Team review and approval of actual demo links using the completed screen; the user explicitly requested that these remain unconfirmed for now. The next development milestone is M3 room-closure simulation. M2 snapshot arithmetic, conflicts, campus-linked filtering and local sequential performance are verified. No simulation or prediction implementation is claimed.
 
 | Milestone | Suggested weeks | Dependency / work | Exit gate |
 |---|---|---|---|
@@ -127,7 +127,7 @@ Every state response includes edition, cutoff, reporting window, schema version,
 
 ## 4. API surface
 
-All paths below are proposed under `/api/v1`. JSON identifiers are UUIDs; dates are ISO 8601 with offsets. Responses expose provenance. Lists are paginated (default 50, max 200); scenario windows are capped at seven days. All reads except health/login require authentication.
+Paths are under `/api/v1`. Authentication, datasets, rooms and snapshots are implemented; simulation and prediction paths remain proposed. The [M2 contract](m2-contract.md) specifies implemented snapshot semantics. JSON identifiers are UUIDs; dates are ISO 8601 with offsets. Responses expose provenance. Lists are paginated (default 50, max 200); snapshot and proposed scenario windows are capped at seven days. All reads except health/login require authentication.
 
 | Method/path | Input / response | Role |
 |---|---|---|
@@ -257,6 +257,8 @@ Explicitly deferred: RAG, embeddings, SimPy, real data ingestion, IoT, 3D maps, 
 
 ### M1 implementation record — 2026-09-13
 
+Historical record: pending database checks and deferred snapshot statements in this section describe 13 September, and are superseded by the M2 record below.
+
 The user explicitly authorized M1 and then deferred Docker setup. Created the React/TypeScript/Vite/Tailwind shell, FastAPI login/logout/session and dataset/room read APIs, SQLAlchemy Core domain tables, frozen Alembic migration, transactional/idempotent generator loader, CLI account/bootstrap commands, and unit/frontend/PostgreSQL integration tests. `/api/v1/auth/me` is an added M1 session-restoration contract returning user id, username and role. StateSnapshot, SimulationRun, ModelArtifact and PredictionRun tables and endpoints remain deferred to their milestones.
 
 **Decision: SQLAlchemy Core tables for M1.** Bulk generation and read endpoints do not need ORM object relationships. Explicit typed SQL columns and composite edition-aware references keep the persistence layer small. Later domain services can use these same tables without changing identifiers. Snapshot and analytical tables will be added through new migrations.
@@ -269,5 +271,15 @@ The clean default seed generated and validated 2 departments, 2 programs, 4 batc
 
 Verified locally: generator and security unit tests; frontend behavioral tests; TypeScript/production build; Ruff checks; offline Alembic SQL rendering. Eight PostgreSQL integration tests are explicitly skipped without a configured test database. They cover actual migration replay, atomic rollback, immutable records, cross-edition foreign keys and authenticated APIs. No database integration success is claimed. See README for commands. Current counts: 18 backend tests passed, 8 PostgreSQL integration tests skipped, and 3 frontend tests passed.
 
-Next gate: resume PostgreSQL integration verification when a database is available; Docker remains deferred. M2 work is a separate implementation scope. Keep frontend development active from week 4 against reviewed mock contracts.
+Historical M1 next gate above was closed on 2026-09-21: the complete PostgreSQL suite now passes without Docker.
+
+### M2 first vertical slice — 2026-09-21
+
+User-authorized scope delivered: typed snapshot request/response models, migration `0002`, canonical frozen inputs and hashes, transactional audit and concurrent idempotency, dated attendance/coverage, scheduled room use and union-minute utilization, faculty teaching workload, deterministic room/faculty/section overlap plus capacity/type rules. The dashboard was built with an injectable mock contract and then connected to authenticated real endpoints; production never silently substitutes mocks. Planner creates; viewer opens saved snapshots. M1 source tables and campus mappings are unchanged.
+
+Teaching availability is fixed to weekdays 09:00–17:00 Asia/Kolkata for schema version 1, since M1 has no teaching-hours configuration. A single stored final status is reconstructed as scheduled before its recording time; timetable revisions are unsupported. Requests require a cutoff within a reporting window of at most seven days inside a term. See the contract for exact denominators, temporal boundaries and evidence limitations.
+
+### M2 remaining implementation — 2026-09-21
+
+Added migration `0003` and a planner review workflow for explicit edition-scoped room links with kind validation, one-to-one uniqueness, optimistic revisions and audit writes. Actual links remain empty per user instruction. Selecting a reviewed space displays room metrics, chronologically paginated sessions and all related anomalies from the same saved snapshot, including cross-room faculty/section conflicts. The server uses a checked-in teaching-space catalog synchronized from stable campus IDs; physical layout labels are unchanged. Automated and disposable browser fixtures verify the flow without asserting actual campus mappings. Default-size snapshot p95 satisfies the local sequential API target; see the measured report for exclusions. Human domain sign-off remains the final acceptance action.
 

@@ -199,3 +199,28 @@ DOMAIN_TABLES = [
     class_session,
     attendance,
 ]
+
+snapshot = sa.Table(
+    "state_snapshot",
+    metadata,
+    col("id", sa.Uuid, primary_key=True),
+    sa.Column("edition_id", sa.Uuid, sa.ForeignKey("dataset_edition.id"), nullable=False),
+    sa.Column("created_by", sa.Uuid, sa.ForeignKey("app_user.id"), nullable=False),
+    col("idempotency_key", sa.String(128)),
+    col("request_hash", sa.String(64)),
+    col("canonical_inputs", JSONB),
+    col("response", JSONB),
+    sa.UniqueConstraint("created_by", "idempotency_key"),
+)
+
+room_mapping = sa.Table(
+    "room_mapping",
+    metadata,
+    sa.Column("edition_id", sa.Uuid, sa.ForeignKey("dataset_edition.id"), primary_key=True),
+    col("version", sa.Integer),
+    col("bindings", JSONB),
+    sa.Column("reviewed_by", sa.Uuid, sa.ForeignKey("app_user.id"), nullable=False),
+    col("reviewed_at", sa.DateTime(timezone=True)),
+    col("review_note", sa.String(1000)),
+    sa.CheckConstraint("version > 0", name="positive_version"),
+)

@@ -22,12 +22,16 @@ from app.auth import (
 )
 from app.config import settings
 from app.db import get_db
+from app.mappings import router as mapping_router
 from app.schema import audit, auth_session, edition, room, user
+from app.snapshots import router as snapshot_router
 
 app = FastAPI(
     title="College Twin", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json"
 )
 logger = logging.getLogger("college_twin")
+app.include_router(snapshot_router)
+app.include_router(mapping_router)
 
 
 @app.middleware("http")
@@ -116,7 +120,7 @@ def audit_event(db, request, actor_id, action):
 @app.get("/api/v1/health")
 def health(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
-    return {"status": "ok", "milestone": "M1", "synthetic_data_only": True}
+    return {"status": "ok", "milestone": "M2-review-ready", "synthetic_data_only": True}
 
 
 @app.post("/api/v1/auth/login")
