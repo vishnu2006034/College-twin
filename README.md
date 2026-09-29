@@ -237,3 +237,14 @@ Optional later PostgreSQL tests: `docker compose --profile test up -d test-db`, 
 - No AI provider is called and no simulation modifies source data.
 - Login throttling is per process. Keep the planned single API worker; redesign throttling before scaling out.
 - No integration test or Docker result is claimed until it actually runs successfully.
+
+
+## M3 room-closure simulation
+
+Core M3 now provides immutable saved runs and a React comparison screen. Apply the new local migration from `backend` with `..\.venv\Scripts\python.exe -m alembic upgrade head`, then restart the API. If using the restricted `twin_app` role, rerun the documented role-provisioning command to grant simulation SELECT/INSERT access.
+
+Create a dated M2 snapshot with cutoff **00:00** (its window start), or open an existing suitable planning snapshot. Select a saved synthetic room and closure interval in **Compare a room closure**. The screen shows baseline, disrupted and reassigned demand, availability denominators, destination IDs and explicit candidate rejection reasons. Viewers can open a saved simulation ID. Source timetables and snapshots are never changed by a simulation.
+
+Classes retain their times. The baseline must be conflict-free and contain complete scheduled classes; unresolved means no room was found under these fixed-time constraints. Actual campus links remain unconfirmed. See [M3 verification](docs/m3-verification.md) and [contract](docs/m3-contract.md) for tests and pending acceptance work.
+
+C4 also supports selecting a reviewed campus room from the saved inventory. After a run, the campus shows labeled red closed rooms and blue reassignment destinations, with shortcuts to their floors. Highlights use the displayed **current mapping revision**, not a historical geometry replay. Only exact approved links for the run's edition are used; unmapped rooms remain identifiable by synthetic ID. This feature does not approve actual campus mappings.

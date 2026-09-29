@@ -1,6 +1,6 @@
 # College Twin — Team Roadmap & Completion Checklist
 
-**Planning snapshot:** 21 September 2026 · **Team:** 3 people · **Baseline:** 12 project weeks
+**Planning snapshot:** 22 September 2026 · **Team:** 3 people · **Baseline:** 12 project weeks
 
 **Goal:** Deliver a demonstrable college digital-twin prototype where a user explores the campus, selects a date, inspects operational problems, closes a room, compares a proposed reassignment, and reviews future attendance risk.
 
@@ -36,7 +36,7 @@ These are proposed assignments, not commitments already made by teammates. Every
 | IT/ECE, CSE, opposite ECE and lab buildings | Modeled | Confirm remaining room counts, room labels and facilities |
 | Physical-room ↔ synthetic-room mapping | Review screen and persistence implemented; actual bindings intentionally empty | Team selects and approves exact edition-specific links |
 | Dated metrics and anomalies | Implemented, filtered room views and local performance verified | Team domain acceptance |
-| Room-closure simulation | Not implemented | Depends on verified state/conflict logic |
+| Room-closure simulation | Core allocation, immutable API and React comparison implemented; [103 backend / 38 frontend tests pass](m3-verification.md) | Performance and team acceptance remain pending |
 | Future attendance-risk prediction | Not implemented | Depends on temporal data and evaluation fixtures |
 | Final end-to-end demo, report and defense | Not complete | Integrate, measure, document and rehearse |
 
@@ -103,13 +103,17 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 
 **Lead: B · Support: A/C · Target: weeks 6–7 · Requires Gate B**
 
-- [ ] **C1 · B:** Accept a baseline snapshot, room and closure interval; identify affected sessions without changing source data.
-- [ ] **C2 · B:** Implement deterministic reassignment respecting capacity, room type, availability, and faculty/section constraints.
-- [ ] **C3 · B:** Persist completed scenario results with provenance and replay protection; make unresolved sessions explicit.
-- [ ] **C4 · A:** Add closure selection from a mapped room and compare baseline, disrupted and reassigned schedules; highlight affected spaces in the model.
-- [ ] **C5 · C/B:** Verify successful reassignment, no available room, incompatible labs, multiple displaced classes, no affected classes, and unchanged baseline data.
+**Implementation progress (2026-09-29):** Core M3 is implemented and locally verified: 103 backend tests (zero skips), 38 frontend tests, build, Ruff and compilation. Real browser creation/comparison passed against a disposable PostgreSQL schema. See [verification](m3-verification.md) for precise coverage and remaining gate items.
+
+- [x] **C1 · B:** Pure engine accepts a saved baseline, room and closure interval, verifies integrity/eligibility and identifies affected sessions without changing inputs. Authenticated API wiring is implemented.
+- [x] **C2 · B:** Deterministic reassignment respects capacity, room type, availability, and faculty/section constraints; independent fixtures pass.
+- [x] **C3 · B:** Persist completed scenario results with provenance and replay protection; make unresolved sessions explicit.
+- [x] **C4 · A:** Reviewed mapped-room selection, three-stage comparison and closed/destination highlighting are implemented. Browser-verified with explicit disposable F1/F2 links in the directory, floor controls, inspector and 3D cutaway. Current mapping revision is shown separately from immutable run provenance. No actual campus links are inferred or approved.
+- [x] **C5 · C/B:** Pure-engine fixtures verify successful reassignment, no available room, incompatible labs, multiple displaced classes, no affected classes, and unchanged baseline inputs. Database baseline/source preservation also passes.
 
 **Gate C:** The same input reproduces the same result. A teammate can trace each moved class and see why any class remains unresolved.
+
+**Gate status:** Core software verified, team gate open. Saved results, API and synthetic-room comparison work; full browser matrix, scenario performance measurements and teammate acceptance remain pending.
 
 ### Phase D — M4: Future attendance-risk prediction
 

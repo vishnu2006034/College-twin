@@ -1,8 +1,8 @@
 # AI-Powered College Digital Twin — Technical Blueprint
 
-Status: M2 software implemented and locally verified, including mapping review, linked-room filtering and measured default-size performance. Actual room links remain unconfirmed at the user's request; team domain review remains pending. The M1 database verification gap is closed. Docker remains deferred. Updated 2026-09-21.
+Status: M2 software implemented and locally verified, including mapping review, linked-room filtering and measured default-size performance. M3 core allocation, immutable persistence/API and React comparison implemented and locally verified; broader acceptance items remain open. Actual room links remain unconfirmed at the user's request; team domain review remains pending. The M1 database verification gap is closed. Docker remains deferred. Updated 2026-09-29.
 
-This is the living source of truth requested by the master prompt. M1 was authorized on 2026-09-13 and the first M2 slice on 2026-09-21. M1 and the documented M2 slice are implemented; M3 and later contracts remain proposed. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
+This is the living source of truth requested by the master prompt. M1 was authorized on 2026-09-13 and the first M2 slice on 2026-09-21. M1, M2 and core M3 are implemented; broader M3 acceptance and later milestones remain pending. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
 
 ## 1. Vision & scope
 
@@ -35,14 +35,14 @@ Update this tracker after each milestone's implementation and verification. Thes
 | M0 Design | Completed for the agreed MVP scope | Refine later feature contracts before their implementation |
 | M1 Foundation | Implemented; PostgreSQL integration verified | Teammate-machine startup and deferred Docker verification remain separate gates |
 | M2 State and anomalies | Software implemented and locally verified; review-ready | Team accepts domain assumptions and approves actual demo links in the review screen; links intentionally remain empty |
-| M3 Room-closure simulation | Not started | Depends on M2's verified state and conflict rules |
+| M3 Room-closure simulation | Core engine, immutable API and comparison implemented; 103 backend / 38 frontend tests pass | Scenario performance and team gate pending; see [verification](m3-verification.md) |
 | M4 Attendance-risk prediction | Not started | Depends on verified data and temporal feature contracts; can overlap M3 |
 | M5 Integration | Not started as a milestone | Full scenario/prediction flows; frontend work begins during M2 |
 | M6 Evaluation and defense | Not started | Evaluation evidence, report and viva preparation |
 
 **Latest evidence (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests in isolated schemas in `college_twin_test`; no skips. 28 frontend tests and the production build passed. Ruff and Python compilation passed. Browser checks covered real snapshot creation/retrieval and a disposable reviewed mapping with linked room state, including narrow-screen layout. Warm snapshot p95: 94.75 ms for one day, 481.94 ms for seven days on the default dataset. See [verification](m2-verification.md), [performance](m2-performance.md) and [review handoff](m2-review.md).
 
-**Next delivery:** Team review and approval of actual demo links using the completed screen; the user explicitly requested that these remain unconfirmed for now. The next development milestone is M3 room-closure simulation. M2 snapshot arithmetic, conflicts, campus-linked filtering and local sequential performance are verified. No simulation or prediction implementation is claimed.
+**Next delivery:** Complete the broader M3 acceptance gate: full browser matrix, default-size seven-day performance measurement and teammate review. Core API, persistence and comparison are locally verified; see [M3 verification](m3-verification.md). M4 prediction remains unimplemented.
 
 | Milestone | Suggested weeks | Dependency / work | Exit gate |
 |---|---|---|---|
@@ -153,7 +153,7 @@ Scenario requests are synchronous for this bounded workload. Persist only comple
 
 ### Room-closure simulation
 
-1. Load immutable baseline inputs; validate room membership, closure interval and seven-day bound. Require a planning window at or after the snapshot cutoff.
+1. Load immutable baseline inputs; validate hash, room membership, closure interval and seven-day bound. M3 v1 requires cutoff equal to window start and all noncancelled classes to be scheduled and fully contained in that window; see the detailed contract.
 2. Detect baseline conflicts. Display them, but reject reassignment for an already infeasible baseline with 409 and actionable details; separate fixtures demonstrate anomaly detection.
 3. Mark any session overlapping the room closure as displaced for its entire duration. Preserve course, students, faculty and time.
 4. Report the disrupted state before repair: displaced sessions and affected distinct students, with no invented attendance effects.
@@ -161,7 +161,7 @@ Scenario requests are synchronous for this bounded workload. Persist only comple
 6. Assign the first feasible candidate or mark the session unresolved. Never cancel, shorten or reschedule a class silently. Recompute metrics and all conflict rules.
 7. Persist old/new room mappings, unresolved reasons, stable deltas and a deterministic recommendation. Never update source timetable or attendance.
 
-**Decision: greedy allocation with explicit limits.** This is understandable and repeatable, but can miss a globally feasible solution. Say “no room found by this heuristic,” not “no possible solution.” Compare a few tiny fixtures against exhaustive manually enumerated assignments for the report; adopting an optimizer remains a separate scope decision. OR-Tools is a relevant constraint-scheduling alternative [5].
+**Decision: deterministic fixed-time allocation with explicit limits.** In M3 v1, one closed room and a feasible baseline mean displaced classes cannot overlap, so their destination choices do not compete in time. Exhaustively enumerated tiny fixtures verify those choices. The algorithm does not move unaffected classes, change times or support multiple closures. Say “no room found by this heuristic,” not “no possible solution” under broader scheduling changes. Adopting a general optimizer remains a separate scope decision; OR-Tools is a constraint-scheduling alternative [5].
 
 Anomaly rules: room overlap, faculty overlap, section overlap, over-capacity and incompatible room type. Each result has a stable rule code, entity/session IDs, interval, severity and explanation. Boundary-touching intervals are not conflicts. Deduplicate symmetric pairs.
 
