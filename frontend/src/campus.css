@@ -12,3 +12,13 @@ main:has(.campus-workspace){max-width:1800px;padding:0 28px}
 @media(min-width:1500px){.scene-viewport{height:650px}}
 @media(max-width:700px){.scene-viewport{height:410px}.model-controls{padding:8px}.model-controls button{font-size:9px;padding:7px}.space-tag{font-size:8px;padding:3px 4px}}
 .hall-plan{position:relative;width:100%;height:600px;background:#e9e4d8;border:1px solid #b8b6a7;margin:16px 0}.hall-plan button{position:absolute;padding:3px;font-size:11px;line-height:1.15;overflow-wrap:anywhere;background:#f4f0e7;border:1px solid #b0b4a8;color:#243f38;border-radius:3px}.hall-plan button[aria-pressed=true]{background:#f0b765;border:2px solid #785022}.hall-plan button:focus-visible{outline:3px solid #216b60;z-index:2}.hall-yard{position:absolute;left:23%;top:30%;width:54%;height:40%;display:grid;place-items:center;background:#ced9bd;color:#43543b;font-size:14px}@media(max-width:700px){.hall-plan{height:680px}.hall-plan button{font-size:10px}}
+
+/* Scenario colors supplement text labels and the independent selected-room outline. */
+.simulation-legend { margin: 1rem 0; padding: 1rem; border: 1px solid #c8d2cd; border-radius: 12px; }
+.simulation-legend h2 { font-size: 1.2rem; }
+.simulation-badge { display: inline-block; padding: .2rem .5rem; border-radius: 5px; font-size: .8rem; }
+.simulation-badge.closed, .campus-workspace .simulation-closed { background: #f8d8d4; color: #72251f; border-color: #bd5148; }
+.simulation-badge.destination, .campus-workspace .simulation-destination { background: #dbe6ff; color: #21427c; border-color: #486cae; }
+.simulation-jump { margin: .25rem; text-align: left; }
+.campus-workspace .room-cell[aria-pressed=true], .campus-workspace .hall-plan button[aria-pressed=true] { outline: 3px solid #efa650; outline-offset: 2px; }
+.hall-plan .simulation-closed small, .hall-plan .simulation-destination small { display: block; font-size: .55rem; }

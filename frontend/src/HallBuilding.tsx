@@ -1,10 +1,11 @@
 import { Html } from '@react-three/drei'
+import { simulationColors, simulationLabels, type SimulationMark, type SimulationHighlights } from './simulation-map'
 import { Blocks, type Block } from './SceneArchitecture'
 import { hallSpaces, spaceColors, type Space } from './campus'
 
-function HallRoom({ room, active, labels, onSpace }: { room: Space; active: boolean; labels: boolean; onSpace: (id: string) => void }) {
+function HallRoom({ room, active, labels, onSpace, mark }: { mark?: SimulationMark; room: Space; active: boolean; labels: boolean; onSpace: (id: string) => void }) {
   const w = room.width, d = room.depth!, wall = '#e9dfcd'
-  const items: Block[] = [{ at: [0, .12, 0], size: [w, .24, d], color: active ? '#efa650' : spaceColors[room.kind] }]
+  const items: Block[] = [{ at: [0, .12, 0], size: [w, .24, d], color: mark ? simulationColors[mark] : active ? '#efa650' : spaceColors[room.kind] }]
   if (room.kind !== 'passage') {
     // Every room opens toward the circulation route. Auditorium opens on its right side.
     const eastDoor = room.wing === 'left' || room.kind === 'auditorium' || (room.wing === 'front' && room.x < 0)
@@ -27,11 +28,11 @@ function HallRoom({ room, active, labels, onSpace }: { room: Space; active: bool
   if (room.kind === 'library') for (let i = 0; i < 5; i++) items.push({ at: [1, 1.3, -6 + i * 3], size: [6, 2.4, .65], color: '#8a7257' })
   return <group position={[room.x, room.floor * 5, room.z!]} onClick={e => { e.stopPropagation(); onSpace(room.id) }}>
     <Blocks items={items}/>
-    {labels && <Html position={[0, 3.5, 0]} center zIndexRange={[20, 0]}><button className={`space-tag ${active ? 'active' : ''}`} onClick={e => { e.stopPropagation(); onSpace(room.id) }}>{room.label}</button></Html>}
+    {labels && <Html position={[0, 3.5, 0]} center zIndexRange={[20, 0]}><button title={mark ? simulationLabels[mark] : room.label} className={`space-tag ${active ? 'active' : ''} ${mark ? `simulation-${mark}` : ''}`} onClick={e => { e.stopPropagation(); onSpace(room.id) }}>{room.label}</button></Html>}
   </group>
 }
 
-export default function HallBuilding({ floor, spaceId, labels, onSpace }: { floor: number | null; spaceId: string | null; labels: boolean; onSpace: (id: string) => void }) {
+export default function HallBuilding({ floor, spaceId, labels, onSpace, highlights = {} }: { highlights?: SimulationHighlights; floor: number | null; spaceId: string | null; labels: boolean; onSpace: (id: string) => void }) {
   const structure: Block[] = []
   // Logical plan is 65 x 65; Z is compressed to the reference-derived 35 m footprint below.
   const wings = [{ x: 0, z: 14.5, w: 44, d: 28 }, { x: 0, z: -29, w: 64, d: 7 }, { x: -27, z: 1.5, w: 10, d: 54 }, { x: 27, z: 1.5, w: 10, d: 54 }]
@@ -48,5 +49,5 @@ export default function HallBuilding({ floor, spaceId, labels, onSpace }: { floo
     for (const side of [-1, 1]) structure.push({ at: [wing.x, 10.55, wing.z + side * wing.d / 2], size: [wing.w, .8, .2], color: '#d9ceb9' })
   }
 
-  return <group scale={[1, 1, 35 / 65]}><Blocks items={structure}/>{hallSpaces.filter(s => s.floor <= Math.min(floor ?? 1, 1)).map(room => <HallRoom key={room.id} room={room} active={room.id === spaceId} labels={labels && (room.floor === floor || (floor === 2 && room.id === 'hall-s-terrace-stairs'))} onSpace={onSpace}/>)}</group>
+  return <group scale={[1, 1, 35 / 65]}><Blocks items={structure}/>{hallSpaces.filter(s => s.floor <= Math.min(floor ?? 1, 1)).map(room => <HallRoom mark={highlights[room.id]} key={room.id} room={room} active={room.id === spaceId} labels={labels && (room.floor === floor || (floor === 2 && room.id === 'hall-s-terrace-stairs'))} onSpace={onSpace}/>)}</group>
 }
