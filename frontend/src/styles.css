@@ -15,3 +15,12 @@
 .room-state { border-top: 1px solid #dce3d9; padding-top: 16px; overflow-wrap: anywhere; }
 .room-state li, .mapping-review li { margin: 12px 0; }
 .room-state small { font-size: 10px; }
+/* Saved simulation provenance must remain readable on narrow screens. */
+.simulation-workspace { min-width: 0; }
+.simulation-workspace code { overflow-wrap: anywhere; }
+.simulation-workspace .table-wrap { max-width: 100%; overflow-x: auto; }
+.simulation-workspace td { overflow-wrap: anywhere; }
+.simulation-workspace dl > div { display: flex; justify-content: space-between; gap: 1rem; }
+.simulation-workspace dd { margin: 0; font-variant-numeric: tabular-nums; }
+.simulation-workspace table { min-width: 720px; }
+.simulation-workspace .table-wrap:focus-visible { outline: 2px solid #245b50; outline-offset: 3px; }

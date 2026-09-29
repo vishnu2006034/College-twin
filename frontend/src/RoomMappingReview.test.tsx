@@ -41,7 +41,7 @@ test('mapped selection shares snapshot identity and resets on a different editio
   const data = { ...mockSnapshot, snapshot_id: mockSnapshot.id, room }
   const fetcher = vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, status: 200, json: async () =>
     url.includes('/room-mappings/') ? { ...emptyMapping(url.endsWith(edition.id) ? edition.id : 'edition-b'), version: 1, bindings: url.endsWith(edition.id) ? [{ space_id: space.id, room_id: room.id }] : [] } :
-      url.includes('/sessions?') ? { items: [], total: 0, limit: 10, offset: 0 } : url.includes('/rooms/') ? data : mockSnapshot,
+      url.endsWith('/rooms') ? { items: [room] } : url.includes('/sessions?') ? { items: [], total: 0, limit: 10, offset: 0 } : url.includes('/rooms/') ? data : mockSnapshot,
   }))
   vi.stubGlobal('fetch', fetcher)
   const view = render(<M2Workspace key={edition.id} edition={edition} actor={actor} rooms={[room]}/>)
