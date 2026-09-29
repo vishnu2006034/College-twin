@@ -99,6 +99,19 @@ def minutes(intervals):
     return total
 
 
+def teaching_intervals(start, end):
+    """Weekday teaching intervals shared by snapshots and room-closure scenarios."""
+    intervals = []
+    day = start.astimezone(LOCAL).date()
+    while day <= end.astimezone(LOCAL).date():
+        a = max(start, datetime.combine(day, time(9), LOCAL))
+        b = min(end, datetime.combine(day, time(17), LOCAL))
+        if day.weekday() < 5 and a < b:
+            intervals.append((a, b))
+        day += timedelta(days=1)
+    return intervals
+
+
 def calculate(request: SnapshotRequest, tables: dict):
     start, end, cutoff = request.window_start, request.window_end, request.as_of
     rooms = {str(r["id"]): r for r in tables["room"]}
@@ -160,14 +173,7 @@ def calculate(request: SnapshotRequest, tables: dict):
             add("room_type", row["room_id"], [row], a, b)
     anomalies.sort(key=lambda r: (r["rule"], r["resource_id"], r["session_ids"]))
 
-    teaching = []
-    day = start.astimezone(LOCAL).date()
-    while day <= end.astimezone(LOCAL).date():
-        a = max(start, datetime.combine(day, time(9), LOCAL))
-        b = min(end, datetime.combine(day, time(17), LOCAL))
-        if day.weekday() < 5 and a < b:
-            teaching.append((a, b))
-        day += timedelta(days=1)
+    teaching = teaching_intervals(start, end)
     booked = 0.0
     for room_id in rooms:
         intervals = []
