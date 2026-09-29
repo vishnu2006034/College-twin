@@ -24,6 +24,7 @@ from app.config import settings
 from app.db import get_db
 from app.mappings import router as mapping_router
 from app.schema import audit, auth_session, edition, room, user
+from app.simulations import router as simulation_router
 from app.snapshots import router as snapshot_router
 
 app = FastAPI(
@@ -31,6 +32,7 @@ app = FastAPI(
 )
 logger = logging.getLogger("college_twin")
 app.include_router(snapshot_router)
+app.include_router(simulation_router)
 app.include_router(mapping_router)
 
 

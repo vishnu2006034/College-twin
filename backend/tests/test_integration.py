@@ -7,6 +7,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi import Depends
+from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, func, select, text
 from sqlalchemy.engine import make_url
@@ -466,3 +467,187 @@ def test_room_snapshot_uses_saved_inputs_and_keeps_cross_room_conflicts(client, 
     assert page["items"][0]["starts_at"] <= page["items"][1]["starts_at"]
     assert client.get(f"{url}/rooms/{uuid4()}").status_code == 404
     assert client.get(f"/api/v1/snapshots/{original['id']}").json() == original
+
+
+def simulation_fixture(client):
+    login(client)
+    headers = {
+        "Origin": "http://testserver",
+        "X-CSRF-Token": client.cookies["twin_csrf"],
+        "Idempotency-Key": "m3-fixture",
+    }
+    body = snapshot_request(client)
+    body["as_of"] = body["window_start"]
+    result = client.post("/api/v1/snapshots", json=body, headers=headers)
+    assert result.status_code == 201, result.text
+    baseline = result.json()
+    sessions = client.get(f"/api/v1/snapshots/{baseline['id']}/sessions").json()["items"]
+    row = next(r for r in sessions if r["status"] == "scheduled")
+    return (
+        dict(
+            snapshot_id=baseline["id"],
+            type="room_unavailability",
+            room_id=row["room_id"],
+            closure_start=row["starts_at"],
+            closure_end=row["ends_at"],
+        ),
+        headers,
+        baseline,
+    )
+
+
+def test_simulation_persistence_security_and_baseline_preservation(client, pg):
+    from app import schema as s
+    from app.state import fingerprint
+
+    body, headers, baseline = simulation_fixture(client)
+
+    def frozen():
+        with pg.connect() as conn:
+            return fingerprint(
+                jsonable_encoder(
+                    {
+                        t.name: [
+                            dict(r) for r in conn.execute(select(t).order_by(t.c.id)).mappings()
+                        ]
+                        for t in [*s.DOMAIN_TABLES, s.snapshot]
+                    }
+                )
+            )
+
+    before = frozen()
+    response = client.post("/api/v1/simulations", json=body, headers=headers)
+    assert response.status_code == 201, response.text
+    run = response.json()
+    assert run["baseline_input_hash"] == baseline["input_hash"]
+    assert run["result"]["impact"]["affected_sessions"] >= 1
+    assert client.post("/api/v1/simulations", json=body, headers=headers).json() == run
+    repeated = client.post(
+        "/api/v1/simulations", json=body, headers=headers | {"Idempotency-Key": "independent-run"}
+    ).json()
+    assert repeated["id"] != run["id"]
+    assert repeated["result_hash"] == run["result_hash"]
+    assert repeated["result"] == run["result"]
+
+    assert (
+        client.post(
+            "/api/v1/simulations", json=body | {"room_id": str(uuid4())}, headers=headers
+        ).status_code
+        == 409
+    )
+    assert client.get(f"/api/v1/simulations/{run['id']}").json() == run
+    page = client.get(
+        f"/api/v1/simulations/{run['id']}/sessions?stage=reassigned&affected_only=true&limit=1"
+    ).json()
+    assert page["total"] == run["result"]["impact"]["affected_sessions"]
+    assert len(page["items"]) == 1
+    assert client.get(f"/api/v1/simulations/{run['id']}/sessions?stage=invalid").status_code == 422
+    assert (
+        client.get(f"/api/v1/simulations/{run['id']}/sessions?stage=baseline&offset=-1").status_code
+        == 422
+    )
+    with pytest.raises(DBAPIError, match="immutable"), pg.begin() as conn:
+        conn.execute(s.simulation_run.update().values(request_hash="changed"))
+    with pytest.raises(DBAPIError, match="immutable"), pg.begin() as conn:
+        conn.execute(s.simulation_run.delete())
+    assert client.post("/api/v1/simulations", json=body).status_code == 403
+    assert (
+        client.post("/api/v1/simulations", json=body | {"extra": 1}, headers=headers).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v1/simulations",
+            json=body | {"room_id": str(uuid4())},
+            headers=headers | {"Idempotency-Key": "missing-room"},
+        ).status_code
+        == 404
+    )
+    assert frozen() == before
+    login(client, "viewer")
+    assert client.get(f"/api/v1/simulations/{run['id']}").status_code == 200
+    headers["X-CSRF-Token"] = client.cookies["twin_csrf"]
+    assert client.post("/api/v1/simulations", json=body, headers=headers).status_code == 403
+    client.cookies.clear()
+    assert client.get(f"/api/v1/simulations/{run['id']}").status_code == 401
+
+
+def test_simulation_concurrent_replay_and_audit_rollback(client, pg):
+    from concurrent.futures import ThreadPoolExecutor
+
+    from sqlalchemy import event
+    from sqlalchemy.exc import SQLAlchemyError
+
+    from app.schema import audit, simulation_run
+
+    body, headers, baseline = simulation_fixture(client)
+
+    def fail_audit(conn, cursor, statement, parameters, context, executemany):
+        if statement.startswith("INSERT INTO audit_log"):
+            raise SQLAlchemyError("Deliberate audit failure")
+
+    event.listen(pg, "before_cursor_execute", fail_audit)
+    try:
+        assert client.post("/api/v1/simulations", json=body, headers=headers).status_code == 503
+    finally:
+        event.remove(pg, "before_cursor_execute", fail_audit)
+    with pg.connect() as conn:
+        assert conn.scalar(select(func.count()).select_from(simulation_run)) == 0
+    cookies = dict(client.cookies)
+
+    def create(_):
+        with TestClient(app) as worker:
+            worker.cookies.update(cookies)
+            response = worker.post("/api/v1/simulations", json=body, headers=headers)
+            assert response.status_code == 201, response.text
+            return response.json()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(create, range(2)))
+    assert results[0] == results[1]
+    assert client.get(f"/api/v1/snapshots/{baseline['id']}").json() == baseline
+    with pg.connect() as conn:
+        assert conn.scalar(select(func.count()).select_from(simulation_run)) == 1
+        assert (
+            conn.scalar(
+                select(func.count()).select_from(audit).where(audit.c.action == "simulation.create")
+            )
+            == 1
+        )
+
+
+def test_simulation_restricted_runtime_role(client, pg):
+    from sqlalchemy.orm import Session
+
+    from app.db import get_db
+
+    body, headers, _ = simulation_fixture(client)
+    role_name = "m3_test_" + uuid4().hex
+    with pg.begin() as conn:
+        schema_name = conn.scalar(text("SELECT current_schema()"))
+        conn.execute(text(f'CREATE ROLE "{role_name}" NOLOGIN'))
+        conn.execute(text(f'GRANT USAGE ON SCHEMA "{schema_name}" TO "{role_name}"'))
+        conn.execute(
+            text(f'GRANT SELECT ON app_user, auth_session, state_snapshot TO "{role_name}"')
+        )
+        conn.execute(text(f'GRANT SELECT, INSERT ON simulation_run TO "{role_name}"'))
+        conn.execute(text(f'GRANT INSERT ON audit_log TO "{role_name}"'))
+
+    def runtime_db():
+        with Session(pg) as session:
+            session.execute(text(f'SET LOCAL ROLE "{role_name}"'))
+            yield session
+
+    app.dependency_overrides[get_db] = runtime_db
+    try:
+        result = client.post("/api/v1/simulations", json=body, headers=headers)
+        assert result.status_code == 201, result.text
+        assert client.get(f"/api/v1/simulations/{result.json()['id']}").status_code == 200
+        with pytest.raises(DBAPIError, match="permission denied"), pg.begin() as conn:
+            conn.execute(text(f'SET LOCAL ROLE "{role_name}"'))
+            conn.execute(text("UPDATE class_session SET status=status"))
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+        with pg.begin() as conn:
+            conn.execute(text(f'DROP OWNED BY "{role_name}"'))
+            conn.execute(text(f'DROP ROLE "{role_name}"'))

@@ -159,6 +159,14 @@ def get_sessions(
     return dict(items=rows[offset : offset + limit], total=len(rows), limit=limit, offset=offset)
 
 
+@router.get("/{snapshot_id}/rooms")
+def get_saved_rooms(
+    snapshot_id: UUID, actor=Depends(current_user), db: Session = Depends(get_db)
+):
+    rooms = saved(db, snapshot_id)["canonical_inputs"]["tables"]["room"]
+    return {"items": sorted(rooms, key=lambda r: r["id"])}
+
+
 @router.get("/{snapshot_id}/rooms/{room_id}")
 def get_room_state(
     snapshot_id: UUID, room_id: UUID, actor=Depends(current_user), db: Session = Depends(get_db)
