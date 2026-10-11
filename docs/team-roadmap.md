@@ -29,7 +29,7 @@ These are proposed assignments, not commitments already made by teammates. Every
 
 | Area | Current position | What still needs attention |
 | --- | --- | --- |
-| React + FastAPI + PostgreSQL foundation | Implemented | Repeat startup and login on the teammates' machines |
+| React + FastAPI + PostgreSQL foundation | Implemented; one-command local launcher and real HTTP startup lifecycle verified | Repeat startup and login on the teammates' machines; see [M1 handoff](m1-verification.md) |
 | Authentication and room/dataset reads | Implemented; PostgreSQL suite verified | Repeat startup on teammates' machines |
 | Synthetic data generator | Implemented | Deliberate-conflict, sparse-data and shifted-data fixtures |
 | 3D campus, floor selection, room panels, search | Implemented | Team validation of geometry and provisional spaces |
@@ -37,7 +37,7 @@ These are proposed assignments, not commitments already made by teammates. Every
 | Physical-room ↔ synthetic-room mapping | Review screen and persistence implemented; actual bindings intentionally empty | Team selects and approves exact edition-specific links |
 | Dated metrics and anomalies | Implemented, filtered room views and local performance verified | Team domain acceptance |
 | Room-closure simulation | Core allocation, immutable API and React comparison implemented; [103 backend / 38 frontend tests pass](m3-verification.md) | Performance and team acceptance remain pending |
-| Future attendance-risk prediction | Not implemented | Depends on temporal data and evaluation fixtures |
+| Future attendance-risk prediction | D1/D2 temporal builder, extraction and purged splits implemented | D3 baseline/model comparison next; evaluation, API and UI pending |
 | Final end-to-end demo, report and defense | Not complete | Integrate, measure, document and rehearse |
 
 **Latest recorded checks (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests with no skips; 28 frontend tests, build, Ruff and Python compilation passed. Browser snapshot creation/retrieval and a disposable reviewed link → room-state flow passed against real endpoints. One-day/seven-day warm API p95: 94.75/481.94 ms. See [verification](m2-verification.md) and [performance](m2-performance.md). Docker work remains deferred.
@@ -75,7 +75,7 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 
 **Lead: B · Support: A/C · Target: start of week 4**
 
-- [ ] **A1 · B:** Demonstrate clean startup, health check, login, logout and dataset selection using the saved local configuration; repeat on each teammate's machine.
+- [ ] **A1 · B:** Local launcher and real HTTP health/login/logout/dataset reads verified on 1 October; [evidence and teammate checklist](m1-verification.md). Independent teammate-machine/browser rehearsal remains pending.
 - [x] **A2 · B:** Original eight database tests plus six snapshot/mapping integration tests passed in isolated schemas in `college_twin_test`; see the verification record.
 - [ ] **A3 · A:** Walk through all four detailed buildings with the team; record confirmed facts versus approximations, including the ECE allocation question above.
 - [ ] **A4 · A:** Confirm CSE ground-floor rooms, separate ECE interiors, lab partitions, restroom sides and floor naming; correct only facts the team can verify.
@@ -113,14 +113,14 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 
 **Gate C:** The same input reproduces the same result. A teammate can trace each moved class and see why any class remains unresolved.
 
-**Gate status:** Core software verified, team gate open. Saved results, API and synthetic-room comparison work; full browser matrix, scenario performance measurements and teammate acceptance remain pending.
+**Gate status:** Core software verified, team gate open. Local sequential scenario API performance passed on 1 October. The 11 October [browser matrix](m3-browser-acceptance.md) verifies planner scenarios, saved-result recovery, keyboard table navigation and narrow layout. Remaining browser cases, quantitative browser responsiveness and teammate acceptance remain pending.
 
 ### Phase D — M4: Future attendance-risk prediction
 
 **Lead: C · Support: B/A · Target: weeks 6–8 · Runs alongside Phase C**
 
-- [ ] **D1 · C/B:** Freeze the future target, prediction horizon, feature cutoff and minimum history; predicting today's threshold is not the ML task.
-- [ ] **D2 · C:** Build temporal train/validation/test splits, with preprocessing fit on training data only and no future attendance leakage.
+- [ ] **D1 · C/B:** Software contract and pure temporal builder implemented with 19 passing fixtures; [target, cutoff, history and label semantics](m4-contract.md). Team contract sign-off remains open. Combined M4/state/simulation checks: 84 passed on 11 October.
+- [ ] **D2 · C:** Extraction and purged temporal splits implemented and tested; default dataset yields 4,320/2,160/2,160 examples. See [evidence](m4-contract.md). No preprocessing has been fitted; training-only fitting must be verified with D3 before closing this checklist item.
 - [ ] **D3 · C:** Evaluate a simple rule/dummy baseline and logistic regression; choose thresholds using validation data only.
 - [ ] **D4 · C:** Record precision, recall, F1, PR-AUC and confusion matrices where defined; include sparse-history, imbalance and shifted-seed limitations.
 - [ ] **D5 · B/C:** Save trusted model artifacts and manifests; expose predictions with model version, data edition, cutoff and insufficient-data handling.

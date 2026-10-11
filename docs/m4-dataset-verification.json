@@ -1,0 +1,69 @@
+{
+  "scope": "Synthetic generator v1; weekly midnight IST cutoffs; no model fitted",
+  "config": {
+    "seed": 42,
+    "weeks": 16,
+    "students_per_section": 30,
+    "start_date": "2026-01-05"
+  },
+  "edition_id": "c010297e-406b-5027-8e66-74f9092150df",
+  "edition_hash": "5df69b5836d0c8cc76bb566c1416e78935fd4253f0879ff4109692a77e0387d8",
+  "policy": {
+    "version": "attendance_risk_v1",
+    "history_days": 28,
+    "horizon_days": 14,
+    "minimum_observations": 5,
+    "minimum_coverage": 0.8,
+    "minimum_label_sessions": 3,
+    "risk_threshold": 0.75
+  },
+  "split_plan": {
+    "validation_start": "2026-03-02T00:00:00+05:30",
+    "test_start": "2026-03-30T00:00:00+05:30",
+    "test_end": "2026-04-27T00:00:00+05:30"
+  },
+  "total_examples": 15360,
+  "history_status": {
+    "eligible": 10800,
+    "insufficient_data": 4560
+  },
+  "label_status": {
+    "eligible": 10800,
+    "horizon_incomplete": 960,
+    "too_few_held_sessions": 3600
+  },
+  "partitions": {
+    "train": {
+      "examples": 4320,
+      "positive_labels": 1759,
+      "prevalence": 0.40717592592592594,
+      "both_classes_present": true,
+      "first_cutoff": "2026-01-12T00:00:00+05:30",
+      "last_cutoff": "2026-02-16T00:00:00+05:30"
+    },
+    "validation": {
+      "examples": 2160,
+      "positive_labels": 873,
+      "prevalence": 0.4041666666666667,
+      "both_classes_present": true,
+      "first_cutoff": "2026-03-02T00:00:00+05:30",
+      "last_cutoff": "2026-03-16T00:00:00+05:30"
+    },
+    "test": {
+      "examples": 2160,
+      "positive_labels": 805,
+      "prevalence": 0.3726851851851852,
+      "both_classes_present": true,
+      "first_cutoff": "2026-03-30T00:00:00+05:30",
+      "last_cutoff": "2026-04-13T00:00:00+05:30"
+    }
+  },
+  "exclusions": {
+    "test:insufficient_data": 720,
+    "test:purged_horizon": 960,
+    "train:insufficient_data": 2400,
+    "train:purged_horizon": 960,
+    "validation:insufficient_data": 720,
+    "validation:purged_horizon": 960
+  }
+}

@@ -1,6 +1,6 @@
 # AI-Powered College Digital Twin — Technical Blueprint
 
-Status: M2 software implemented and locally verified, including mapping review, linked-room filtering and measured default-size performance. M3 core allocation, immutable persistence/API and React comparison implemented and locally verified; broader acceptance items remain open. Actual room links remain unconfirmed at the user's request; team domain review remains pending. The M1 database verification gap is closed. Docker remains deferred. Updated 2026-09-29.
+Status: M2 software implemented and locally verified, including mapping review, linked-room filtering and measured default-size performance. M3 core allocation, immutable persistence/API, React comparison and default-size local sequential API performance verified; broader browser and team acceptance items remain open. Actual room links remain unconfirmed at the user's request; team domain review remains pending. The M1 database verification gap is closed. Docker remains deferred. Updated 2026-10-01.
 
 This is the living source of truth requested by the master prompt. M1 was authorized on 2026-09-13 and the first M2 slice on 2026-09-21. M1, M2 and core M3 are implemented; broader M3 acceptance and later milestones remain pending. Confirmed team: three students including the user. Plan for 12 weeks; any additional time is contingency, not required capacity. Budget remains provisionally near-zero.
 
@@ -33,16 +33,20 @@ Update this tracker after each milestone's implementation and verification. Thes
 | Milestone | Current status | Remaining work / next action |
 |---|---|---|
 | M0 Design | Completed for the agreed MVP scope | Refine later feature contracts before their implementation |
-| M1 Foundation | Implemented; PostgreSQL integration verified | Teammate-machine startup and deferred Docker verification remain separate gates |
+| M1 Foundation | Implemented; one-command local startup and real HTTP lifecycle verified; 109 backend / 38 frontend tests pass | Independent teammate-machine acceptance pending; Docker deferred by user; see [verification](m1-verification.md) |
 | M2 State and anomalies | Software implemented and locally verified; review-ready | Team accepts domain assumptions and approves actual demo links in the review screen; links intentionally remain empty |
-| M3 Room-closure simulation | Core engine, immutable API and comparison implemented; 103 backend / 38 frontend tests pass | Scenario performance and team gate pending; see [verification](m3-verification.md) |
-| M4 Attendance-risk prediction | Not started | Depends on verified data and temporal feature contracts; can overlap M3 |
+| M3 Room-closure simulation | Core engine, immutable API and comparison implemented; prior 103 backend / 38 frontend tests pass; local API performance passes | Full browser matrix and team gate pending; see [verification](m3-verification.md) |
+| M4 Attendance-risk prediction | D1/D2 temporal builder, clean-edition extraction and purged splits implemented; 34 M4 tests pass | D3 baseline/model comparison next; training/API/UI pending; see [contract](m4-contract.md) |
 | M5 Integration | Not started as a milestone | Full scenario/prediction flows; frontend work begins during M2 |
 | M6 Evaluation and defense | Not started | Evaluation evidence, report and viva preparation |
 
-**Latest evidence (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests in isolated schemas in `college_twin_test`; no skips. 28 frontend tests and the production build passed. Ruff and Python compilation passed. Browser checks covered real snapshot creation/retrieval and a disposable reviewed mapping with linked room state, including narrow-screen layout. Warm snapshot p95: 94.75 ms for one day, 481.94 ms for seven days on the default dataset. See [verification](m2-verification.md), [performance](m2-performance.md) and [review handoff](m2-review.md).
+**M2 evidence (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests in isolated schemas in `college_twin_test`; no skips. 28 frontend tests and the production build passed. Ruff and Python compilation passed. Browser checks covered real snapshot creation/retrieval and a disposable reviewed mapping with linked room state, including narrow-screen layout. Warm snapshot p95: 94.75 ms for one day, 481.94 ms for seven days on the default dataset. See [verification](m2-verification.md), [performance](m2-performance.md) and [review handoff](m2-review.md).
 
-**Next delivery:** Complete the broader M3 acceptance gate: full browser matrix, default-size seven-day performance measurement and teammate review. Core API, persistence and comparison are locally verified; see [M3 verification](m3-verification.md). M4 prediction remains unimplemented.
+**M3 performance update (2026-10-01):** Default-size seven-day scenarios pass the local sequential API target: warm creation p95 407.89–497.85 ms over 20 runs per scenario. Source data and baseline snapshot preserved. See [measurements and limitations](m3-performance.md).
+
+**M1 follow-up (2026-10-01):** Added the local two-service launcher and disposable real-HTTP startup/auth/read/logout/cleanup checks. Full backend suite: 109 passed, zero skipped; frontend: 38 passed and build passed. Existing local database upgraded from `0003` to `0004`; setup preflight passes. Teammate startup acceptance remains open and Docker stays deferred. See [evidence and handoff](m1-verification.md).
+
+**Next delivery:** M4 D3: compare the dummy prior, current-rate rule and logistic regression using training-only preprocessing and validation-only threshold selection. D2's [extraction and purged split evidence](m4-contract.md) records 4,320/2,160/2,160 train/validation/test examples on the default edition. Combined generator/M4/M2-state/M3-domain regression checks passed 111 tests on 11 October, with Ruff clean. No model has been trained. Remaining M3 browser cases, quantitative browser responsiveness and teammate review stay open; see the [browser acceptance pass](m3-browser-acceptance.md).
 
 | Milestone | Suggested weeks | Dependency / work | Exit gate |
 |---|---|---|---|
@@ -282,4 +286,3 @@ Teaching availability is fixed to weekdays 09:00–17:00 Asia/Kolkata for schema
 ### M2 remaining implementation — 2026-09-21
 
 Added migration `0003` and a planner review workflow for explicit edition-scoped room links with kind validation, one-to-one uniqueness, optimistic revisions and audit writes. Actual links remain empty per user instruction. Selecting a reviewed space displays room metrics, chronologically paginated sessions and all related anomalies from the same saved snapshot, including cross-room faculty/section conflicts. The server uses a checked-in teaching-space catalog synchronized from stable campus IDs; physical layout labels are unchanged. Automated and disposable browser fixtures verify the flow without asserting actual campus mappings. Default-size snapshot p95 satisfies the local sequential API target; see the measured report for exclusions. Human domain sign-off remains the final acceptance action.
-
