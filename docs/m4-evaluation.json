@@ -1,0 +1,202 @@
+{
+  "scope": "Synthetic known-student forecasting; no real-college effectiveness claim",
+  "edition_id": "c010297e-406b-5027-8e66-74f9092150df",
+  "edition_hash": "5df69b5836d0c8cc76bb566c1416e78935fd4253f0879ff4109692a77e0387d8",
+  "generator_version": "1.0.0",
+  "config": {
+    "seed": 42,
+    "weeks": 16,
+    "students_per_section": 30,
+    "start_date": "2026-01-05"
+  },
+  "policy": {
+    "version": "attendance_risk_v1",
+    "history_days": 28,
+    "horizon_days": 14,
+    "minimum_observations": 5,
+    "minimum_coverage": 0.8,
+    "minimum_label_sessions": 3,
+    "risk_threshold": 0.75
+  },
+  "plan": {
+    "validation_start": "2026-03-02T00:00:00+05:30",
+    "test_start": "2026-03-30T00:00:00+05:30",
+    "test_end": "2026-04-27T00:00:00+05:30"
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1"
+  },
+  "python": "3.13.14",
+  "features": [
+    "attendance_rate",
+    "observed_sessions",
+    "consecutive_absences",
+    "attendance_trend",
+    "coverage"
+  ],
+  "logistic_threshold": 0.35,
+  "selection": "Validation F1 on 0.05..0.95 step 0.05; ties choose higher threshold",
+  "parameters": {
+    "C": 1.0,
+    "solver": "lbfgs",
+    "max_iter": 1000,
+    "random_state": 42
+  },
+  "training_imputation_medians": [
+    0.78125,
+    20.0,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "training_scaler_means": [
+    0.7569033840388018,
+    19.0,
+    0.3599537037037037,
+    -0.0005267581569664851,
+    1.0
+  ],
+  "training_scaler_scales": [
+    0.15995299707914346,
+    7.916228058025278,
+    0.7702921509769267,
+    0.14880713286824596,
+    1.0
+  ],
+  "logistic_coefficients": [
+    -1.071743671784023,
+    -0.05375575977659226,
+    -0.01311294756831493,
+    -0.045745397413392244,
+    0.0
+  ],
+  "logistic_intercept": -0.4344326538855268,
+  "results": {
+    "validation": {
+      "dummy_prior": {
+        "examples": 2160,
+        "prevalence": 0.4041666666666667,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "average_precision": 0.4041666666666667,
+        "brier_score": 0.2408250278635117,
+        "confusion_matrix": [
+          [
+            1287,
+            0
+          ],
+          [
+            873,
+            0
+          ]
+        ],
+        "both_classes_present": true
+      },
+      "current_rate_rule": {
+        "examples": 2160,
+        "prevalence": 0.4041666666666667,
+        "precision": 0.6589147286821705,
+        "recall": 0.6815578465063001,
+        "f1": 0.670045045045045,
+        "average_precision": 0.5777922072156069,
+        "brier_score": 0.2712962962962963,
+        "confusion_matrix": [
+          [
+            979,
+            308
+          ],
+          [
+            278,
+            595
+          ]
+        ],
+        "both_classes_present": true
+      },
+      "logistic_regression": {
+        "examples": 2160,
+        "prevalence": 0.4041666666666667,
+        "precision": 0.6140667267808837,
+        "recall": 0.7800687285223368,
+        "f1": 0.6871846619576185,
+        "average_precision": 0.6815029553473351,
+        "brier_score": 0.18645738632015668,
+        "confusion_matrix": [
+          [
+            859,
+            428
+          ],
+          [
+            192,
+            681
+          ]
+        ],
+        "both_classes_present": true
+      }
+    },
+    "test": {
+      "dummy_prior": {
+        "examples": 2160,
+        "prevalence": 0.3726851851851852,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "average_precision": 0.3726851851851852,
+        "brier_score": 0.23498054912551444,
+        "confusion_matrix": [
+          [
+            1355,
+            0
+          ],
+          [
+            805,
+            0
+          ]
+        ],
+        "both_classes_present": true
+      },
+      "current_rate_rule": {
+        "examples": 2160,
+        "prevalence": 0.3726851851851852,
+        "precision": 0.6120092378752887,
+        "recall": 0.6583850931677019,
+        "f1": 0.6343506882106523,
+        "average_precision": 0.530252573912831,
+        "brier_score": 0.2828703703703704,
+        "confusion_matrix": [
+          [
+            1019,
+            336
+          ],
+          [
+            275,
+            530
+          ]
+        ],
+        "both_classes_present": true
+      },
+      "logistic_regression": {
+        "examples": 2160,
+        "prevalence": 0.3726851851851852,
+        "precision": 0.5649409627611263,
+        "recall": 0.7726708074534161,
+        "f1": 0.6526757607555089,
+        "average_precision": 0.6347436519054293,
+        "brier_score": 0.18599683967838979,
+        "confusion_matrix": [
+          [
+            876,
+            479
+          ],
+          [
+            183,
+            622
+          ]
+        ],
+        "both_classes_present": true
+      }
+    }
+  }
+}

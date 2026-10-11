@@ -36,7 +36,7 @@ Update this tracker after each milestone's implementation and verification. Thes
 | M1 Foundation | Implemented; one-command local startup and real HTTP lifecycle verified; 109 backend / 38 frontend tests pass | Independent teammate-machine acceptance pending; Docker deferred by user; see [verification](m1-verification.md) |
 | M2 State and anomalies | Software implemented and locally verified; review-ready | Team accepts domain assumptions and approves actual demo links in the review screen; links intentionally remain empty |
 | M3 Room-closure simulation | Core engine, immutable API and comparison implemented; prior 103 backend / 38 frontend tests pass; local API performance passes | Full browser matrix and team gate pending; see [verification](m3-verification.md) |
-| M4 Attendance-risk prediction | D1/D2 temporal builder, clean-edition extraction and purged splits implemented; 34 M4 tests pass | D3 baseline/model comparison next; training/API/UI pending; see [contract](m4-contract.md) |
+| M4 Attendance-risk prediction | D1–D3 offline pipeline implemented; 43 M4 tests pass; test F1 0.653 logistic / 0.634 rule | D4 uncertainty/shift evaluation next; persistence/API/UI pending; see [results](m4-evaluation.md) |
 | M5 Integration | Not started as a milestone | Full scenario/prediction flows; frontend work begins during M2 |
 | M6 Evaluation and defense | Not started | Evaluation evidence, report and viva preparation |
 
@@ -46,7 +46,7 @@ Update this tracker after each milestone's implementation and verification. Thes
 
 **M1 follow-up (2026-10-01):** Added the local two-service launcher and disposable real-HTTP startup/auth/read/logout/cleanup checks. Full backend suite: 109 passed, zero skipped; frontend: 38 passed and build passed. Existing local database upgraded from `0003` to `0004`; setup preflight passes. Teammate startup acceptance remains open and Docker stays deferred. See [evidence and handoff](m1-verification.md).
 
-**Next delivery:** M4 D3: compare the dummy prior, current-rate rule and logistic regression using training-only preprocessing and validation-only threshold selection. D2's [extraction and purged split evidence](m4-contract.md) records 4,320/2,160/2,160 train/validation/test examples on the default edition. Combined generator/M4/M2-state/M3-domain regression checks passed 111 tests on 11 October, with Ruff clean. No model has been trained. Remaining M3 browser cases, quantitative browser responsiveness and teammate review stay open; see the [browser acceptance pass](m3-browser-acceptance.md).
+**Next delivery:** M4 D4: student-group uncertainty and shifted-data evaluation. D3's [baseline comparison](m4-evaluation.md) uses training-only preprocessing and validation-selected threshold 0.35; test F1 is 0.653 versus 0.634 for the rule, with lower precision and higher recall. Combined generator/M4/M2-state/M3-domain checks passed 120 tests on 11 October, with Ruff clean. Model persistence/API/UI remain pending. Remaining M3 browser cases, quantitative browser responsiveness and teammate review stay open; see the [browser acceptance pass](m3-browser-acceptance.md).
 
 | Milestone | Suggested weeks | Dependency / work | Exit gate |
 |---|---|---|---|

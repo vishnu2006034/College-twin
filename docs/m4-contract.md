@@ -1,6 +1,6 @@
 # M4 attendance-risk contract — v1
 
-11 October 2026. D1 temporal builder and D2 clean-edition extraction/purged splits implemented. Training, evaluation, model storage, API and UI remain unimplemented. Team review remains open.
+11 October 2026. D1 temporal builder, D2 clean-edition extraction/purged splits and D3 offline baseline/logistic comparison implemented. Broader D4 evaluation, model storage, API and UI remain unfinished. Team review remains open.
 
 ## Objective
 
@@ -47,7 +47,7 @@ All 15,360 extracted rows are accounted for: 8,640 retained, 2,880 boundary-purg
 
 Verification: 15 D2 tests plus 19 D1 tests pass. The combined generator/M2-state/M3-domain/M4 run passed **111 tests**; Ruff passed. Tests include independently counted memberships/arithmetic, exact split totals, boundary equality, delayed label visibility, duplicate/mixed-source rejection, removed-session detection despite a recomputed hash, deterministic ordering, and changing post-training attendance without changing training calculations. No model-accuracy claim is made.
 
-Next: D3 compares a dummy prior, current-rate rule and logistic regression. Select thresholds on validation only; report actual test results and shifted-seed limitations, even when ML loses. Those results do not exist yet.
+D3 now compares a dummy prior, current-rate rule and logistic regression with training-only preprocessing and validation-only threshold selection. See [measured results and limits](m4-evaluation.md). Next is D4: uncertainty and shifted-data evaluation; no prediction service is delivered yet.
 
 ## Verification
 

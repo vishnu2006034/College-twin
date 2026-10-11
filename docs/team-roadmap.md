@@ -37,7 +37,7 @@ These are proposed assignments, not commitments already made by teammates. Every
 | Physical-room ↔ synthetic-room mapping | Review screen and persistence implemented; actual bindings intentionally empty | Team selects and approves exact edition-specific links |
 | Dated metrics and anomalies | Implemented, filtered room views and local performance verified | Team domain acceptance |
 | Room-closure simulation | Core allocation, immutable API and React comparison implemented; [103 backend / 38 frontend tests pass](m3-verification.md) | Performance and team acceptance remain pending |
-| Future attendance-risk prediction | D1/D2 temporal builder, extraction and purged splits implemented | D3 baseline/model comparison next; evaluation, API and UI pending |
+| Future attendance-risk prediction | D1–D3 offline pipeline and baseline comparison implemented | D4 uncertainty/shift evaluation next; persistence, API and UI pending |
 | Final end-to-end demo, report and defense | Not complete | Integrate, measure, document and rehearse |
 
 **Latest recorded checks (2026-09-21):** 49 backend tests passed, including all 14 PostgreSQL integration tests with no skips; 28 frontend tests, build, Ruff and Python compilation passed. Browser snapshot creation/retrieval and a disposable reviewed link → room-state flow passed against real endpoints. One-day/seven-day warm API p95: 94.75/481.94 ms. See [verification](m2-verification.md) and [performance](m2-performance.md). Docker work remains deferred.
@@ -120,8 +120,8 @@ The original baseline reserves weeks 1–3 for design and foundation. The table 
 **Lead: C · Support: B/A · Target: weeks 6–8 · Runs alongside Phase C**
 
 - [ ] **D1 · C/B:** Software contract and pure temporal builder implemented with 19 passing fixtures; [target, cutoff, history and label semantics](m4-contract.md). Team contract sign-off remains open. Combined M4/state/simulation checks: 84 passed on 11 October.
-- [ ] **D2 · C:** Extraction and purged temporal splits implemented and tested; default dataset yields 4,320/2,160/2,160 examples. See [evidence](m4-contract.md). No preprocessing has been fitted; training-only fitting must be verified with D3 before closing this checklist item.
-- [ ] **D3 · C:** Evaluate a simple rule/dummy baseline and logistic regression; choose thresholds using validation data only.
+- [x] **D2 · C:** Extraction/purged splits and training-only preprocessing verified; default dataset yields 4,320/2,160/2,160 examples. See [evidence](m4-contract.md) and [preprocessing checks](m4-evaluation.md).
+- [x] **D3 · C:** Dummy prior, current-rate rule and logistic regression evaluated; threshold selected on validation only. [Results](m4-evaluation.md): logistic test F1 0.653 versus rule 0.634, with the precision/recall trade-off documented.
 - [ ] **D4 · C:** Record precision, recall, F1, PR-AUC and confusion matrices where defined; include sparse-history, imbalance and shifted-seed limitations.
 - [ ] **D5 · B/C:** Save trusted model artifacts and manifests; expose predictions with model version, data edition, cutoff and insufficient-data handling.
 - [ ] **D6 · A:** Build the risk view with clear synthetic-data labeling and model provenance; never present predictions as confirmed future outcomes.
