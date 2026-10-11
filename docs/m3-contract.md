@@ -147,12 +147,13 @@ For hand arithmetic on a single weekday 09:00–17:00 window with four rooms, ba
 - [x] Implement typed models and pure allocation with independent hand-calculated fixtures.
 - [x] Add migration, persistence/API and PostgreSQL concurrency/security tests.
 - [x] Build comparison components against contract fixtures, then connect real endpoints.
-- [ ] Complete browser checks and scenario performance measurements; record revision and commands in `m3-verification.md`.
+- [x] Measure default-size seven-day local sequential API performance; see `m3-performance.md` and raw samples.
+- [ ] Complete the broader browser matrix and browser responsiveness checks; record evidence in `m3-verification.md`.
 - [ ] Obtain team acceptance of planning restrictions and verify reviewed demo mappings when the team supplies them.
 
 The design review found two M2 reuse limits: `calculate()` counts every noncancelled row as assigned and assumes no closure in availability; saved inputs also contain raw final statuses that must remain hidden until the cutoff. M3 needs explicit scenario assignment/availability handling while preserving M2 temporal semantics. Do not implement displacement by deleting demand or marking classes cancelled.
 
-The pure engine is implemented in `backend/app/simulation.py`; immutable persistence and routes are in `backend/app/simulations.py`, and the comparison is in `frontend/src/M3Workspace.tsx`. The current suite passes 103 backend and 38 frontend tests. Core M3 is locally verified; broader browser coverage, performance measurement and team acceptance remain open. See [verification](m3-verification.md).
+The pure engine is implemented in `backend/app/simulation.py`; immutable persistence and routes are in `backend/app/simulations.py`, and the comparison is in `frontend/src/M3Workspace.tsx`. Prior suite evidence is 103 backend and 38 frontend tests. Core M3 and default-size local sequential API performance are verified; broader browser coverage, browser responsiveness and team acceptance remain open. See [verification](m3-verification.md).
 
 ### C4 reviewed mapping integration (29 September 2026)
 

@@ -1,0 +1,14 @@
+{
+  "measured_at": "2026-10-01T02:19:05.774706+00:00",
+  "os": "Windows-11-10.0.26200-SP0",
+  "checks": {
+    "seed_replay_unchanged": true,
+    "both_services_running": true,
+    "occupied_ports_rejected": true,
+    "frontend_proxy_health_and_anonymous_denial": true,
+    "planner_login_reads_csrf_logout": true,
+    "viewer_login_reads_csrf_logout": true,
+    "owned_services_stopped_and_ports_released": true,
+    "disposable_schema_removed": true
+  }
+}

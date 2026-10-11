@@ -29,9 +29,17 @@ Live browser test used two explicit disposable mappings in a random schema in `c
 
 The frontend production build passes; its existing Three.js chunk-size warning remains. Backend code is unchanged by this follow-up; the earlier 103-test backend result remains the backend evidence. No application mappings were created or approved. The disposable browser schema and preview servers were removed after verification.
 
+## Default-size performance verification — 1 October 2026
+
+The new reproducible benchmark passed using the full 16-week default dataset and a saved seven-day planning snapshot. Twenty warm unique-key creates per scenario produced p95 values of **407.89 ms** (classroom closure), **449.98 ms** (lab closure with unresolved demand), and **497.85 ms** (weekend/no-impact closure), below the two-second target. Saved run/page reads were below 20 ms p95. All source domain tables and the baseline snapshot remained unchanged; deterministic hashes matched across independent runs. The disposable test schema was removed. See [method, limits and reproduction](m3-performance.md) and [raw samples](m3-performance.json).
+
+This closes the local sequential API performance item only. Browser responsiveness, cold starts and concurrent load were not measured. The script passed Ruff; prior application suite results above remain historical evidence, not a new full-suite run.
+
 ## Honest remaining gate items
 
-Core user-requested simulation, saved baseline preservation, API, comparison and automated verification are delivered. The broader roadmap gate stays open for team acceptance, a complete keyboard/desktop browser matrix and measured default-size seven-day API performance. No scenario performance target is claimed. Actual campus mappings remain unconfirmed. M4 prediction, Docker validation and deployment remain pending.
+11 October browser follow-up: real planner login, planning-baseline eligibility, successful/no-impact/unresolved closures, saved-result retrieval, invalid-ID recovery, table tab order and 392 CSS-pixel layout/keyboard scrolling pass. See the [executed browser matrix](m3-browser-acceptance.md) for exact fixtures and limits. Quantitative browser responsiveness, viewer/network-failure browser cases and team acceptance remain open.
+
+Core user-requested simulation, saved baseline preservation, API, comparison and automated verification are delivered. Default-size seven-day local sequential API performance passes the target. The broader roadmap gate stays open for team acceptance and a complete keyboard/desktop browser matrix, including browser responsiveness. Actual campus mappings remain unconfirmed. M4 prediction, Docker validation and deployment remain pending.
 
 Only dedicated test schemas were migrated during validation. To enable M3 on an existing local application database, apply `alembic upgrade head` from `backend` and rerun the existing runtime-role provisioning workflow if using `twin_app`; then restart the API. No application database migration, source edit or mapping approval was performed by this validation.
 

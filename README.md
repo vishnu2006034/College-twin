@@ -1,6 +1,6 @@
 # College Twin
 
-Synthetic-data college digital-twin prototype. M1 provides authentication, reference data and reproducible generation. M2 adds saved dated snapshots, state metrics, deterministic conflicts, reviewed campus-room links and filtered room state. Actual mappings remain unconfirmed until you approve them in the review screen. Simulations and ML remain unimplemented. See [M2 review instructions](docs/m2-review.md), [verification and migration setup](docs/m2-verification.md), [performance](docs/m2-performance.md), and the [milestone tracker](docs/blueprint.md#current-progress-tracker).
+Synthetic-data college digital-twin prototype. M1 provides authentication, reference data and reproducible generation. M2 adds saved dated snapshots, state metrics, deterministic conflicts, reviewed campus-room links and filtered room state. M3 adds saved room-closure simulations and baseline comparisons, with verified local sequential API performance. Actual mappings remain unconfirmed until you approve them in the review screen. ML remains unimplemented. See [M2 review instructions](docs/m2-review.md), [verification and migration setup](docs/m2-verification.md), [M3 performance](docs/m3-performance.md), and the [milestone tracker](docs/blueprint.md#current-progress-tracker).
 
 The authenticated workspace now includes an interactive 3D Jeppiaar campus model with IT/ECE floor and room exploration. Geometry is approximate; room assignments follow user-confirmed details. Physical spaces remain separate from synthetic records until explicitly mapped. See [campus model guide](docs/campus-model.md) for the layout, configuration, limitations, and verification instructions.
 
@@ -148,22 +148,30 @@ Set-Location 'V:\college twin'
 npm.cmd run dev --prefix frontend -- --port 5173 --strictPort
 ```
 
-Leave this terminal running too. Open [College Twin](http://localhost:5173) and sign in with `planner` and the **website password from step 6**. You should see the dataset edition and room inventory. Simulation and prediction screens are later milestones.
+Leave this terminal running too. Open [College Twin](http://localhost:5173) and sign in with `planner` and the **website password from step 6**. You should see the dataset edition and room inventory. Saved planning snapshots support the M3 room-closure comparison described below; prediction is a later milestone.
 
 Use `localhost:5173` consistently. The frontend forwards `/api` requests to the backend on port 8000. The strict port option prevents Vite from silently choosing a different port that would no longer match `APP_ORIGIN`. If the frontend is already running at this address, reuse it rather than launching a second copy.
 
 ### Starting again the next day
 
+After one-time setup, start **both backend and frontend with one command** from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/start_local.py
+```
+
+Open [College Twin](http://localhost:5173) and use your existing website account. Keep the terminal open; Ctrl+C stops both services started by this command. The launcher checks configuration, database connectivity, migration head, dataset/account presence and free ports first. It does not create or reset data/accounts. If it requests a migration, run `alembic upgrade head` from `backend` as in step 5 and retry. To check setup without starting services, add `--check`. See [M1 verification and teammate checklist](docs/m1-verification.md).
+
 For a previously configured local database, save your connection once in `backend/local-settings.json` (copy `backend/local-settings.example.json` if absent). Enter the PostgreSQL installation password in `database.password`; host, port, database and username are already supplied. Password special characters are URL-encoded automatically. This private file is ignored by Git. It also supplies the local frontend origin, so terminal environment variables are unnecessary. Explicit environment variables still override local defaults for deployments and tests.
 
-Stop the previous backend, then run `& 'V:\college twin\scripts\start_backend.ps1'`. The script validates configuration and explicitly loads this checkout's backend source. It does not create or reset the database or website account. Keep that terminal open and start the frontend in another terminal. When using this saved-file method, skip the environment-variable setup in step 4; migrations and CLI commands run from `backend` read the same file.
+With the saved file configured, use the one-command launcher above. For separate terminals, `& 'V:\college twin\scripts\start_backend.ps1'` remains available for backend-only startup, followed by step 8 for the frontend. When using the saved-file method, skip the environment-variable setup in step 4; migrations and CLI commands run from `backend` read the same file.
 
 The database, tables, synthetic data and accounts remain saved when terminals close. You do **not** repeat database creation, seeding or account creation every day.
 
 1. Confirm the PostgreSQL service is running.
-2. Open Terminal 1 and repeat **step 4** to set its connection variables, then **step 7** to start the backend.
-3. Open Terminal 2 and repeat **step 8** to start the frontend.
-4. After pulling code changes, run `alembic upgrade head` as in step 5 before starting the backend. Reinstall dependencies only when the dependency files change.
+2. Use your saved local configuration, or repeat **step 4** to set connection variables in the terminal you will use.
+3. From the project root, run `start_local.py` using the command above.
+4. After pulling code changes, run `alembic upgrade head` as in step 5 before starting services. Reinstall dependencies only when the dependency files change.
 
 Press `Ctrl+C` in each terminal to stop its development server. Closing Terminal 1 clears its connection environment variables; PostgreSQL keeps the data.
 
